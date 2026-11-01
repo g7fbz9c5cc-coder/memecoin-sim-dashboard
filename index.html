@@ -1,0 +1,66 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Memecoin-Simulation (Spielgeld)</title><meta name="robots" content="noindex"><meta name="referrer" content="no-referrer">
+<style>
+:root{--bg:#0b0d10;--card:#15181d;--line:#242830;--t:#e8eaed;--t2:#9aa0a6;--g:#3ddc84;--r:#ff5c5c;--a:#f5c542}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:15px/1.4 -apple-system,system-ui,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:520px;margin:0 auto;padding:16px}
+.sim{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;background:var(--a);color:#111;border-radius:6px;padding:2px 6px;vertical-align:middle;margin-left:8px}
+.lbl{color:var(--t2);font-size:13px}.bal{font-size:38px;font-weight:700;margin:4px 0}
+.up{color:var(--g)}.down{color:var(--r)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0}
+.bots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.bot{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 6px;text-align:center}
+.bot b{display:block;font-size:13px}.bot span{font-size:11px;color:var(--t2)}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;background:var(--t2)}
+.dot.active,.dot.scanning,.dot.analyzing{background:var(--g)}.dot.paused,.dot.waiting{background:var(--a)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{background:#2a2f37;color:var(--t);border:0;border-radius:10px;padding:8px 14px;font-weight:600}
+.bar{height:8px;background:#242830;border-radius:8px;overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;background:var(--g)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.tab{flex:1;text-align:center;padding:8px;border-radius:10px;background:#15181d;color:var(--t2);border:1px solid var(--line)}
+.tab.on{color:var(--t);background:#2a2f37}
+.item{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.item:last-child{border:0}
+.logo{width:36px;height:36px;border-radius:50%;background:#2a2f37;flex:none;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.grow{flex:1;min-width:0}.small{font-size:12px;color:var(--t2)}.r{text-align:right}
+.ev{font-size:13px;padding:6px 0;border-bottom:1px solid var(--line)}
+svg{width:100%;height:120px;display:block}
+.note{font-size:12px;color:var(--t2);text-align:center;margin:18px 0}
+</style></head><body><div class="wrap">
+<div class="row"><div class="lbl">Gesamtguthaben <span class="sim">SIM · SPIELGELD</span></div><div class="small" id="upd"></div></div>
+<div class="card small" id="stale" style="display:none;border-color:#f5c542;color:#f5c542"></div><div class="bal" id="bal">–</div><div id="pnl" class="up"></div>
+<div class="card"><svg id="chart" viewBox="0 0 500 120" preserveAspectRatio="none"></svg></div>
+<div class="bots" id="bots"></div>
+<div class="card"><div class="row"><div><div class="lbl">Nacht-Ziel <span id="mult"></span></div><b id="goal"></b></div><span class="small">Nur Ansicht</span></div><div class="bar"><i id="prog"></i></div></div>
+<div class="card small" id="scoutnote"></div>
+<div class="tabs"><div class="tab on" data-t="pos">Positionen</div><div class="tab" data-t="trades">Trades</div><div class="tab" data-t="bots">Bots</div></div>
+<div class="card" id="list"></div>
+<div class="card"><div class="lbl" style="margin-bottom:6px">Meldungen</div><div id="events"></div></div>
+<div class="note">Simulation mit Spielgeld auf echten Live-Kursen (DexScreener, GeckoTerminal, RugCheck). Keine echten Trades, kein Wallet. Daten werden etwa jede Minute aktualisiert.</div>
+</div><script>
+let S=null,tab='pos';const $=id=>document.getElementById(id);
+const usd=v=>(v<0?'-':'')+'$'+Math.abs(v).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct=v=>(v>=0?'+':'')+v.toLocaleString('de-DE',{maximumFractionDigits:2})+'%';
+const t=s=>new Date(s).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Berlin'});
+const fmtq=q=>q>=1e6?(q/1e6).toLocaleString('de-DE',{maximumFractionDigits:2})+' Mio.':q.toLocaleString('de-DE',{maximumFractionDigits:2});
+const BN={scout:'Scout',analyst:'Analyst',executor:'Executor',risk:'Risk'};
+const ST={idle:'wartet',active:'aktiv',scanning:'scannt',analyzing:'prüft',paused:'pausiert',waiting:'wartet'};
+function logo(p){return p.image?`<img class="logo" src="${p.image}" onerror="this.outerHTML='<div class=logo>${p.symbol.slice(0,3)}</div>'">`:`<div class="logo">${p.symbol.slice(0,3)}</div>`}
+function render(){if(!S||!S.stats)return;const st=S.stats;
+$('bal').textContent=usd(S.equity??S.cash);const up=(S.pnl_usd||0)>=0;$('pnl').className=up?'up':'down';$('pnl').textContent=`${usd(S.pnl_usd||0)} (${pct(S.pnl_pct||0)}) seit Start`;
+const ts=S.published_at||S.last_cycle;$('upd').textContent='Stand: '+new Date(ts).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'Europe/Berlin'})+' MEZ';const age=(Date.now()-new Date(ts).getTime())/1000;$('stale').style.display=age>180?'block':'none';$('stale').textContent='Daten sind '+Math.round(age/60)+' Min. alt – die Simulation oder der Publisher läuft gerade evtl. nicht.';
+$('bots').innerHTML=Object.keys(BN).map(k=>{const b=S.bots[k];return `<div class="bot"><b><span class="dot ${b.status}"></span>${BN[k]}</b><span>${ST[b.status]||b.status}</span></div>`}).join('');
+const m=(S.goal/S.start_balance);$('mult').textContent=m+'x';$('goal').textContent=`${usd(S.start_balance)} → ${usd(S.equity)} (Ziel ${usd(S.goal)})`;
+$('prog').style.width=Math.max(0,Math.min(100,(S.equity-S.start_balance)/(S.goal-S.start_balance)*100))+'%';
+
+const killed=st.scout_killed;const share=st.pools_checked?Math.round(killed/st.pools_checked*100):0;
+$('scoutnote').textContent=`Scout hat ${st.pools_checked.toLocaleString('de-DE')} Pools geprüft, ${share}% vor dem Analyst aussortiert, Analyst hat ${st.analyst_killed} weitere verworfen, ${st.bought} gekauft.`;
+const h=S.equity_history||[];if(h.length>1){const v=h.map(x=>x.equity),mn=Math.min(...v,S.start_balance),mx=Math.max(...v,S.start_balance),rg=(mx-mn)||1;
+const pts=v.map((y,i)=>`${(i/(v.length-1)*500).toFixed(1)},${(112-(y-mn)/rg*104).toFixed(1)}`).join(' ');const by=(112-(S.start_balance-mn)/rg*104).toFixed(1);
+$('chart').innerHTML=`<line x1="0" x2="500" y1="${by}" y2="${by}" stroke="#444" stroke-dasharray="4 4"/><polyline fill="none" stroke="${up?'#3ddc84':'#ff5c5c'}" stroke-width="2" points="${pts}"/>`}
+let html='';if(tab==='pos'){const ps=Object.values(S.positions);html=ps.length?ps.map(p=>`<div class="item">${logo(p)}<div class="grow"><b>${p.symbol}</b><div class="small ${p.pnl_pct>=0?'up':'down'}">${pct(p.pnl_pct)}</div></div><div class="r"><b>${usd(p.value_usd)}</b><div class="small">${fmtq(p.qty)} ${p.symbol}</div></div></div>`).join(''):'<div class="small">Keine offenen Positionen – der Scout sucht weiter.</div>'}
+else if(tab==='trades'){html=S.trades.length?S.trades.map(x=>`<div class="item"><div class="logo">${x.side==='BUY'?'K':'V'}</div><div class="grow"><b>${x.side==='BUY'?'Kauf':'Verkauf'} ${x.symbol}</b><div class="small">${t(x.t)} · Slippage ${x.slippage_pct}%${x.reason?' · '+x.reason:''}</div></div><div class="r"><b>${usd(x.usd)}</b>${x.pnl_usd!=null?`<div class="small ${x.pnl_usd>=0?'up':'down'}">${usd(x.pnl_usd)} (${pct(x.pnl_pct)})</div>`:''}</div></div>`).join(''):'<div class="small">Noch keine Trades.</div>'}
+else{html=Object.keys(BN).map(k=>{const b=S.bots[k];return `<div class="item"><div class="logo">${BN[k][0]}</div><div class="grow"><b>${BN[k]}</b><div class="small">${b.last}</div></div><div class="small">${ST[b.status]||b.status}</div></div>`}).join('')+
+`<div class="lbl" style="margin:10px 0 4px">Aussortiert nach Grund</div>`+Object.entries(st.kill_reasons).sort((a,b)=>b[1]-a[1]).map(([r,n])=>`<div class="row small"><span>${r}</span><span>${n}</span></div>`).join('')}
+$('list').innerHTML=html;
+$('events').innerHTML=(S.events||[]).slice(0,15).map(e=>`<div class="ev"><span class="small">${t(e.t)}</span> <span class="${e.kind==='sell'?(e.pnl_usd>=0?'up':'down'):''}">${e.text}</span></div>`).join('')||'<div class="small">Noch keine Meldungen.</div>'}
+async function load(){try{const r=await fetch('https://gist.githubusercontent.com/g7fbz9c5cc-coder/3987fbe42260cd2aa2e28f02e06f01fc/raw/state.json?t='+Date.now(),{cache:'no-store'});const d=await r.json();if(d&&d.stats){S=d;render()}}catch(e){}}
+document.querySelectorAll('.tab').forEach(el=>el.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));el.classList.add('on');tab=el.dataset.t;render()});
+load();setInterval(load,30000);setInterval(render,15000);
+</script></body></html>
