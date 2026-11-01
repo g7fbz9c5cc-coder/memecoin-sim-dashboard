@@ -46,7 +46,7 @@ function logo(p){return p.image?`<img class="logo" src="${p.image}" onerror="thi
 function render(){if(!S||!S.stats)return;const st=S.stats;
 $('bal').textContent=usd(S.equity??S.cash);const up=(S.pnl_usd||0)>=0;$('pnl').className=up?'up':'down';$('pnl').textContent=`${usd(S.pnl_usd||0)} (${pct(S.pnl_pct||0)}) seit Start`;
 const ts=S.published_at||S.last_cycle;$('upd').textContent='Stand: '+new Date(ts).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'Europe/Berlin'})+' MEZ';const age=(Date.now()-new Date(ts).getTime())/1000;const eage=S.last_cycle?(Date.now()-new Date(S.last_cycle).getTime())/1000:0;
-if(age>180){$('stale').style.display='block';$('stale').textContent='Daten sind '+Math.round(age/60)+' Min. alt – der Publisher (oder die Verbindung) hängt gerade evtl.'}
+if(age>180){$('stale').style.display='block';$('stale').textContent='Daten sind '+Math.round(age/60)+' Min. alt – der Rechner der Simulation ist vermutlich pausiert (oder der Publisher/die Verbindung hängt). Nach dem Aufwachen holt sie automatisch auf.'}
 else if(eage>210){$('stale').style.display='block';$('stale').textContent='Engine hängt: letzter abgeschlossener Zyklus vor '+Math.round(eage/60)+' Min. (Watchdog startet sie nach 3 Min. neu).'}
 else{$('stale').style.display='none'}
 $('bots').innerHTML=Object.keys(BN).map(k=>{const b=S.bots[k];return `<div class="bot"><b><span class="dot ${b.status}"></span>${BN[k]}</b><span>${ST[b.status]||b.status}</span></div>`}).join('');
