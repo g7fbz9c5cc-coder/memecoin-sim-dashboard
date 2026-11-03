@@ -28,13 +28,13 @@ svg{width:100%;height:120px;display:block}
 <div class="card small" id="stale" style="display:none;border-color:#f5c542;color:#f5c542"></div><div class="stopban" id="acstop"></div><div class="bal" id="bal">–</div><div id="pnl" class="up"></div>
 <div class="card"><svg id="chart" viewBox="0 0 500 120" preserveAspectRatio="none"></svg></div>
 <div class="bots" id="bots"></div>
-<div class="card" id="cvmain" style="display:none"><div class="lbl">📈 Kontoverlauf Haupt-Bot</div><div id="cvmainsvg"></div><div class="small" id="cvmainnote"></div></div>
+<div class="card" id="cvmain" style="display:none"><div class="lbl">📈 Kontoverlauf Haupt-Bot</div><div id="cvmainhead"></div><div id="cvmainread" style="min-height:22px;margin:6px 0 2px;font-size:13px;color:var(--t2)"></div><div id="cvmainsvg"></div><div class="small" id="cvmainnote"></div></div>
 <div class="card"><div class="row"><div><div class="lbl">Nacht-Ziel <span id="mult"></span></div><b id="goal"></b></div><span class="small">Nur Ansicht</span></div><div class="bar"><i id="prog"></i></div><div class="small" id="acline" style="margin-top:8px"></div><div class="small" id="rules" style="margin-top:4px"></div><div class="small" id="xline" style="margin-top:4px"></div></div>
 <div class="card small" id="scoutnote"></div>
 <div class="tabs"><div class="tab on" data-t="pos">Positionen</div><div class="tab" data-t="watch">Watchlist</div><div class="tab" data-t="trades">Trades</div><div class="tab" data-t="bots">Bots</div></div>
 <div class="card" id="list"></div>
 <div class="card"><div class="lbl" style="margin-bottom:6px">Meldungen</div><div id="events"></div></div>
-<div class="card" id="cvevo" style="display:none"><div class="lbl">🧬 Evolution: Kontoverlauf aller Bots</div><div id="cvevosvg"></div><div id="cvevoleg" style="display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px"></div><div class="small" id="cvevonote" style="margin-top:6px"></div></div>
+<div class="card" id="cvevo" style="display:none"><div class="lbl">🧬 Evolution: Kontoverlauf aller Bots</div><div id="cvevohead"></div><div id="cvevoread" style="min-height:22px;margin:6px 0 2px;font-size:13px;color:var(--t2)"></div><div id="cvevosvg"></div><div id="cvevoleg" style="display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px"></div><div class="small" id="cvevonote" style="margin-top:6px"></div></div>
 <div class="card" id="evocard" style="display:none"><div class="row"><div class="lbl">🧬 Evolution · 10-Bot-Population <span class="sim">SIM</span></div><span class="small" id="evoupd"></span></div><div id="evosum" style="margin-top:6px"></div><div class="small" id="evobest" style="margin-top:6px"></div><div id="evobots" style="margin-top:6px"></div><div class="lbl" style="margin:10px 0 4px">Geburten &amp; Todesfälle</div><div id="evoev"></div><div class="small" id="evorules" style="margin-top:8px"></div></div>
 <div class="note">Simulation mit Spielgeld auf echten Live-Kursen (DexScreener, GeckoTerminal, RugCheck). Keine echten Trades, kein Wallet. Daten werden etwa jede Minute aktualisiert.</div>
 </div><script>
@@ -50,31 +50,61 @@ function logo(p){return p.image?`<img class="logo" src="${p.image}" onerror="thi
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const CVCOL=['#3ddc84','#4ea1ff','#f5c542','#ff7ab6','#b48cff','#ff9f43','#2ee6d6','#ff5c5c','#c7e84a','#e0e0e0','#8a7dff','#ffb3a7','#5ad1ff','#d9a441','#7bed9f','#ff6b81','#a4b0be','#eccc68','#70a1ff','#ff4757'];
 const hm=e=>new Date(e*1000).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Berlin'});
-function cvChart(series,hl,o){o=o||{};const W=340,H=o.h||190,L=44,R=8,T=8,B=20;let xs=[],ys=[];
-series.forEach(s=>s.pts.forEach(p=>{xs.push(p[0]);if(p[1]!=null)ys.push(p[1])}));hl.forEach(h=>ys.push(h.y));if(xs.length<2||!ys.length)return '<div class="small">Noch zu wenige Datenpunkte.</div>';
-let x0=Math.min(...xs),x1=Math.max(...xs);if(o.x1)x1=Math.max(x1,o.x1);const y0r=Math.min(...ys),y1r=Math.max(...ys),pad=(y1r-y0r||1)*0.06,y0=y0r-pad,y1=y1r+pad;
+const pctDE=v=>(v>=0?'+':'−')+Math.abs(v).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+' %';
+const CV={},CVSEL={};
+function cvVal(pts,t){let r=null;for(const p of pts){if(p[0]>t)break;r=p}if(!r||r[1]==null)return null;return r}
+function cvChart(id,series,hl,o){o=o||{};const W=340,H=o.h||190,L=44,R=o.r||8,T=10,B=20;let xs=[],ys=[];
+series.forEach(s=>s.pts.forEach(p=>{xs.push(p[0]);if(p[1]!=null)ys.push(p[1])}));hl.forEach(h=>ys.push(h.y));if(xs.length<2||!ys.length){CV[id]=null;return '<div class="small">Noch zu wenige Datenpunkte.</div>'}
+let x0=Math.min(...xs),x1=Math.max(...xs);if(o.x1)x1=Math.max(x1,o.x1);const y0r=Math.min(...ys),y1r=Math.max(...ys),pad=(y1r-y0r||1)*0.08,y0=y0r-pad,y1=y1r+pad;
 const X=t=>L+(t-x0)/((x1-x0)||1)*(W-L-R),Y=v=>T+(1-(v-y0)/((y1-y0)||1))*(H-T-B);let g='';
 for(let i=0;i<=3;i++){const v=y0+(y1-y0)*i/3,yy=Y(v);g+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="#242830"/><text x="${L-4}" y="${yy+3}" fill="#9aa0a6" font-size="9" text-anchor="end">$${v.toLocaleString('de-DE',{maximumFractionDigits:v<100?1:0})}</text>`}
 for(let i=0;i<=3;i++){const t=x0+(x1-x0)*i/3;g+=`<text x="${X(t)}" y="${H-5}" fill="#9aa0a6" font-size="9" text-anchor="${i==0?'start':i==3?'end':'middle'}">${hm(t)}</text>`}
 if(o.gaps){series.forEach(s=>{const p=s.pts;for(let i=1;i<p.length-1;i++)if(p[i][1]==null){const a=X(p[i-1][0]),b=X(p[i+1][0]);g+=`<rect x="${a}" y="${T}" width="${Math.max(1,b-a)}" height="${H-T-B}" fill="#ffffff0d"/>`}})}
-hl.forEach(h=>{const yy=Y(h.y);g+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="${h.c}" stroke-dasharray="4 3" stroke-width="1"/><text x="${W-R-2}" y="${yy-3}" fill="${h.c}" font-size="9" text-anchor="end">${h.l}</text>`});
+hl.forEach(h=>{const yy=Y(h.y);g+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="${h.c}" stroke-dasharray="4 3" stroke-width="1"/><text x="${L+3}" y="${yy-3}" fill="${h.c}" font-size="9">${h.l}</text>`});
+const ends=[];
 series.forEach(s=>{let d='',pen=false,last=null;s.pts.forEach(p=>{if(p[1]==null){pen=false;return}d+=(pen?'L':'M')+X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1);pen=true;last=p});
 g+=`<path d="${d}" fill="none" stroke="${s.c}" stroke-width="${s.w||1.6}" stroke-linejoin="round" ${s.dash?'stroke-dasharray="3 2"':''} opacity="${s.op||1}"/>`;
 if(s.first&&s.pts.length&&s.pts[0][1]!=null)g+=`<circle cx="${X(s.pts[0][0])}" cy="${Y(s.pts[0][1])}" r="2" fill="${s.c}"/>`;
-if(s.dead&&last)g+=`<text x="${X(last[0])}" y="${Y(last[1])+3}" fill="${s.c}" font-size="9" text-anchor="middle">✝</text>`});
-return `<svg viewBox="0 0 ${W} ${H}" style="height:auto;width:100%">${g}</svg>`}
+if(s.dead&&last)g+=`<text x="${X(last[0])}" y="${Y(last[1])+3}" fill="${s.c}" font-size="9" text-anchor="middle">✝</text>`;
+if(last&&!s.dead)ends.push({s,last,x:X(last[0]),y:Y(last[1])})});
+if(o.big&&ends.length){const e=ends[0],txt=usd(e.last[1]),w=txt.length*7.6+10,yy=e.y-T<26?e.y+8:e.y-26;
+g+=`<circle cx="${e.x}" cy="${e.y}" r="3.5" fill="${e.s.c}" stroke="#15181d" stroke-width="1.5"/><rect x="${e.x-w-2}" y="${yy}" width="${w}" height="19" rx="5" fill="#0b0d10" stroke="${e.s.c}" stroke-width="1"/><text x="${e.x-7}" y="${yy+14}" fill="${e.s.c}" font-size="13" font-weight="700" text-anchor="end">${txt}</text>`}
+if(o.endLabels&&ends.length){const sp=10.5,top=T+4,bot=H-B-2;ends.sort((a,b)=>a.y-b.y);ends.forEach((e,i)=>{e.ly=Math.max(e.y+3,i?ends[i-1].ly+sp:top+3)});
+for(let i=ends.length-1;i>=0;i--)ends[i].ly=Math.min(ends[i].ly,i==ends.length-1?bot:ends[i+1].ly-sp);
+ends.forEach(e=>{const lx=W-R+4;g+=`<circle cx="${e.x}" cy="${e.y}" r="2.2" fill="${e.s.c}"/>`+(Math.abs(e.ly-3-e.y)>1.5?`<polyline points="${e.x},${e.y} ${lx-1},${e.ly-3}" fill="none" stroke="${e.s.c}" stroke-width=".6" opacity=".7"/>`:'')+`<text x="${lx}" y="${e.ly}" fill="${e.s.c}" font-size="9" font-weight="600">${usd(e.last[1])}</text>`})}
+CV[id]={W,H,L,R,T,B,x0,x1,y0,y1,X,Y,series,kind:o.kind};
+return `<svg viewBox="0 0 ${W} ${H}" style="height:auto;width:100%;touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;cursor:crosshair">${g}<g class="mk"></g></svg>`}
+function cvMark(id){const c=CV[id],box=$(id+'svg'),rd=$(id+'read');if(!c||!box)return;const svg=box.querySelector('svg');if(!svg)return;const mk=svg.querySelector('.mk');const t=CVSEL[id];
+if(t==null){mk.innerHTML='';rd.innerHTML='<span class="small">👆 Auf die Kurve tippen oder ziehen, um den Betrag zu einer Uhrzeit zu sehen.</span>';return}
+const x=c.X(t);let g=`<line x1="${x}" x2="${x}" y1="${c.T}" y2="${c.H-c.B}" stroke="#e8eaed" stroke-width="1" stroke-dasharray="2 2"/>`;const vals=[];
+c.series.forEach(s=>{if(s.died&&t>s.died)return;const p=cvVal(s.pts,t);if(!p)return;if(t-p[0]>600&&!(s.pts[s.pts.length-1]===p&&!s.dead))return;vals.push({s,v:p[1]});g+=`<circle cx="${x}" cy="${c.Y(p[1])}" r="3.2" fill="${s.c}" stroke="#0b0d10" stroke-width="1"/>`});
+g+=`<rect x="${Math.min(Math.max(x-24,c.L),c.W-c.R-48)}" y="0" width="48" height="12" rx="3" fill="#2a2f37"/><text x="${Math.min(Math.max(x,c.L+24),c.W-c.R-24)}" y="9" fill="#e8eaed" font-size="9" text-anchor="middle">${hm(t)}</text>`;mk.innerHTML=g;
+const tt=`<b style="color:var(--t)">${hm(t)} MEZ</b>`;
+if(c.kind==='main'){const v=vals[0];rd.innerHTML=v?`${tt} · Konto <b style="color:var(--t);font-size:16px">${usd(v.v)}</b> <span class="${v.v>=c.start?'up':'down'}">${pctDE((v.v/c.start-1)*100)}</span>`:`${tt} · keine Daten (Rechner pausiert)`}
+else{vals.sort((a,b)=>b.v-a.v);rd.innerHTML=tt+' · '+(vals.length?vals.length+' Bots':'keine Daten')+'<div style="display:flex;flex-wrap:wrap;gap:2px 10px;margin-top:3px">'+vals.map(o=>`<span class="small" style="white-space:nowrap"><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${o.s.c};margin-right:3px"></i>#${o.s.k} <b style="color:var(--t)">${usd(o.v)}</b></span>`).join('')+'</div>'}}
+function cvBind(id){const box=$(id+'svg');if(!box||box._cvb)return;box._cvb=1;let down=false;
+const at=cx=>{const c=CV[id];const svg=box.querySelector('svg');if(!c||!svg)return;const r=svg.getBoundingClientRect();let xs=(cx-r.left)/r.width*c.W;xs=Math.max(c.L,Math.min(c.W-c.R,xs));let t=c.x0+(xs-c.L)/(c.W-c.L-c.R)*(c.x1-c.x0),bt=null;c.series.forEach(s=>s.pts.forEach(q=>{if(q[1]!=null&&(bt==null||Math.abs(q[0]-t)<Math.abs(bt-t)))bt=q[0]}));CVSEL[id]=bt==null?t:bt;cvMark(id)};
+if(window.PointerEvent){box.addEventListener('pointerdown',e=>{down=true;at(e.clientX)});box.addEventListener('pointermove',e=>{if(down||e.pointerType==='mouse')at(e.clientX)});['pointerup','pointercancel','pointerleave'].forEach(n=>box.addEventListener(n,()=>{down=false}))}
+else{box.addEventListener('touchstart',e=>at(e.touches[0].clientX),{passive:true});box.addEventListener('touchmove',e=>at(e.touches[0].clientX),{passive:true});box.addEventListener('mousedown',e=>at(e.clientX))}
+$(id+'read').addEventListener('click',()=>{CVSEL[id]=null;cvMark(id)})}
 function renderCurves(){const C=S&&S.curves;if(!C){$('cvmain').style.display='none';$('cvevo').style.display='none';return}
-const M=C.main||[];if(M.length>1){$('cvmain').style.display='block';const st=C.main_start||680,sp=C.main_stop;const lv=M.filter(p=>p[1]!=null);const lastv=lv.length?lv[lv.length-1][1]:st;
-$('cvmainsvg').innerHTML=cvChart([{pts:M,c:lastv>=st?'#3ddc84':'#ff5c5c',w:1.8}],[{y:st,c:'#9aa0a6',l:'Start '+usd(st)}].concat(sp!=null?[{y:sp,c:'#ff5c5c',l:'Konto-Stop '+usd(sp)}]:[]),{gaps:true,h:200});
-const gaps=M.filter(p=>p[1]==null).length;$('cvmainnote').textContent=`Equity = Cash + offene Positionen zum Marktpreis, seit Neustart ${C.main_started_at?new Date(C.main_started_at).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Berlin'}):''} MEZ. Jetzt ${usd(lastv)}.`+(gaps?` Graue Felder/Lücken (${gaps}) = keine Daten, meist weil der Rechner pausiert war – nichts interpoliert.`:'')}else $('cvmain').style.display='none';
+const M=C.main||[];if(M.length>1){$('cvmain').style.display='block';const st=C.main_start||680,sp=C.main_stop;const lv=M.filter(p=>p[1]!=null);const lastv=(S.equity!=null?S.equity:(lv.length?lv[lv.length-1][1]:st));
+let mn=lv[0],mx=lv[0];lv.forEach(p=>{if(p[1]<mn[1])mn=p;if(p[1]>mx[1])mx=p});const ch=lastv-st;
+$('cvmainhead').innerHTML=`<div style="font-size:17px;font-weight:700;margin-top:4px">${usd(st)} → <span class="${ch>=0?'up':'down'}">${usd(lastv)}</span> <span class="${ch>=0?'up':'down'}" style="font-size:14px">(${pctDE(ch/st*100)})</span></div><div class="small">${ch>=0?'Gewinn':'Verlust'} ${usd(Math.abs(ch))} · Tief ${usd(mn[1])} (${hm(mn[0])}) · Hoch ${usd(mx[1])} (${hm(mx[0])})</div>`;
+const Mp=M.slice();if(S.equity!=null&&S.last_cycle){const tl=Math.floor(new Date(S.last_cycle).getTime()/1000);if(lv.length&&tl>lv[lv.length-1][0]&&tl-lv[lv.length-1][0]<180)Mp.push([tl,S.equity])}
+$('cvmainsvg').innerHTML=cvChart('cvmain',[{k:'main',pts:Mp,c:ch>=0?'#3ddc84':'#ff5c5c',w:1.8}],[{y:st,c:'#9aa0a6',l:'Start '+usd(st)}].concat(sp!=null?[{y:sp,c:'#ff5c5c',l:'Konto-Stop '+usd(sp)}]:[]),{gaps:true,h:200,big:true,kind:'main'});
+if(CV.cvmain)CV.cvmain.start=st;cvBind('cvmain');cvMark('cvmain');
+const gaps=M.filter(p=>p[1]==null).length;$('cvmainnote').textContent=`Equity = Cash + offene Positionen zum Marktpreis, seit Neustart ${C.main_started_at?new Date(C.main_started_at).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Berlin'}):''} MEZ.`+(gaps?` Graue Felder/Lücken (${gaps}) = keine Daten, meist weil der Rechner pausiert war – nichts interpoliert.`:'')}else $('cvmain').style.display='none';
 const Bo=C.bots||{},ids=Object.keys(Bo);if(!ids.length){$('cvevo').style.display='none';return}$('cvevo').style.display='block';
 const live={};((S.evo&&S.evo.bots)||[]).forEach(b=>live[b.id]=b);const col=k=>CVCOL[(parseInt(k)-1)%CVCOL.length];
-const sr=ids.map(k=>{const s=Bo[k];return {k,pts:s.pts,c:col(k),dead:!!s.died,dash:!!s.died,op:s.died?0.55:1,first:true,w:1.3}});const nowT=Math.max(...ids.map(k=>{const p=Bo[k].pts;return p.length?p[p.length-1][0]:0}));
-$('cvevosvg').innerHTML=cvChart(sr,[{y:68,c:'#9aa0a6',l:'Start $68'}],{gaps:false,h:210,x1:nowT});
+const evT=S.evo&&S.evo.last_cycle?Math.floor(new Date(S.evo.last_cycle).getTime()/1000):0;const sr=ids.map(k=>{const s=Bo[k];let pts=s.pts;const lp=pts.length?pts[pts.length-1]:null;if(live[k]&&lp&&lp[1]!=null&&evT>lp[0]&&evT-lp[0]<180)pts=pts.concat([[evT,live[k].equity]]);return {k,pts,c:col(k),dead:!!s.died,died:s.died,dash:!!s.died,op:s.died?0.55:1,first:true,w:1.3}});const nowT=Math.max(...ids.map(k=>{const p=Bo[k].pts;return p.length?p[p.length-1][0]:0}));
+const tot=ids.filter(k=>live[k]).reduce((a,k)=>a+live[k].equity,0),n=ids.filter(k=>live[k]).length,st0=n*68;
+$('cvevohead').innerHTML=n?`<div style="font-size:15px;font-weight:700;margin-top:4px">${n} Bots: ${usd(Object.values(live).reduce((a,b)=>a+(b.start_money||68),0))} → <span class="${tot>=st0?'up':'down'}">${usd(tot)}</span></div>`:'';
+$('cvevosvg').innerHTML=cvChart('cvevo',sr,[{y:68,c:'#9aa0a6',l:'Start $68'}],{gaps:false,h:230,x1:nowT,r:46,endLabels:true,kind:'evo'});cvBind('cvevo');cvMark('cvevo');
 const ord=ids.slice().sort((a,b)=>{const da=!!Bo[a].died,db=!!Bo[b].died;if(da!=db)return da?1:-1;const ea=live[a]?live[a].equity:0,eb=live[b]?live[b].equity:0;return eb-ea});
 $('cvevoleg').innerHTML=ord.map(k=>{const s=Bo[k],b=live[k];const lp=s.pts.filter(p=>p[1]!=null);const v=b?b.equity:(lp.length?lp[lp.length-1][1]:0);const pc=s.start?(v/s.start-1)*100:0;
-return `<span class="small" style="white-space:nowrap${s.died?';opacity:.6':''}"><i style="display:inline-block;width:10px;height:3px;background:${col(k)};vertical-align:middle;margin-right:3px"></i>${s.died?'✝ ':''}#${k}${s.gen>1?' G'+s.gen:''} ${usd(v)} <span class="${pc>=0?'up':'down'}">${pc>=0?'+':''}${pc.toLocaleString('de-DE',{maximumFractionDigits:1})}%</span></span>`}).join('');
-$('cvevonote').textContent='Eine Linie pro Bot, Punkt = Geburt (Start ab 10:59 MEZ mit je $68), ✝ = Tod (Linie endet). Unterbrochene Linien = keine Daten (Aufzeichnung startete 11:16 MEZ bzw. Rechner pausiert) – nichts interpoliert.'}
+return `<span class="small" style="white-space:nowrap${s.died?';opacity:.6':''}"><i style="display:inline-block;width:10px;height:3px;background:${col(k)};vertical-align:middle;margin-right:3px"></i>${s.died?'✝ ':''}#${k}${s.gen>1?' G'+s.gen:''} <b style="color:var(--t)">${usd(v)}</b> <span class="${pc>=0?'up':'down'}">${pctDE(pc)}</span></span>`}).join('');
+$('cvevonote').textContent='Eine Linie pro Bot, Betrag am Linienende = aktueller Kontostand. Punkt = Geburt (Start 10:59 MEZ mit je $68), ✝ = Tod (Linie endet). Lücken = keine Daten (Aufzeichnung ab 11:16 MEZ bzw. Rechner pausiert) – nichts interpoliert.'}
 function renderEvo(){const E=S&&S.evo;if(!E||!E.bots){$('evocard').style.display='none';return}$('evocard').style.display='block';
 const k=v=>'$'+(v/1000).toLocaleString('de-DE',{maximumFractionDigits:0})+'k';const sg=v=>(v>=0?'+':'')+v.toLocaleString('de-DE',{maximumFractionDigits:1})+'%';
 $('evoupd').textContent=E.last_cycle?'Stand '+t(E.last_cycle)+(E.paused?' · pausiert':''):'';
