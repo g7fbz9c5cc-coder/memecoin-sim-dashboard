@@ -28,11 +28,13 @@ svg{width:100%;height:120px;display:block}
 <div class="card small" id="stale" style="display:none;border-color:#f5c542;color:#f5c542"></div><div class="stopban" id="acstop"></div><div class="bal" id="bal">–</div><div id="pnl" class="up"></div>
 <div class="card"><svg id="chart" viewBox="0 0 500 120" preserveAspectRatio="none"></svg></div>
 <div class="bots" id="bots"></div>
+<div class="card" id="cvmain" style="display:none"><div class="lbl">📈 Kontoverlauf Haupt-Bot</div><div id="cvmainsvg"></div><div class="small" id="cvmainnote"></div></div>
 <div class="card"><div class="row"><div><div class="lbl">Nacht-Ziel <span id="mult"></span></div><b id="goal"></b></div><span class="small">Nur Ansicht</span></div><div class="bar"><i id="prog"></i></div><div class="small" id="acline" style="margin-top:8px"></div><div class="small" id="rules" style="margin-top:4px"></div><div class="small" id="xline" style="margin-top:4px"></div></div>
 <div class="card small" id="scoutnote"></div>
 <div class="tabs"><div class="tab on" data-t="pos">Positionen</div><div class="tab" data-t="watch">Watchlist</div><div class="tab" data-t="trades">Trades</div><div class="tab" data-t="bots">Bots</div></div>
 <div class="card" id="list"></div>
 <div class="card"><div class="lbl" style="margin-bottom:6px">Meldungen</div><div id="events"></div></div>
+<div class="card" id="cvevo" style="display:none"><div class="lbl">🧬 Evolution: Kontoverlauf aller Bots</div><div id="cvevosvg"></div><div id="cvevoleg" style="display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px"></div><div class="small" id="cvevonote" style="margin-top:6px"></div></div>
 <div class="card" id="evocard" style="display:none"><div class="row"><div class="lbl">🧬 Evolution · 10-Bot-Population <span class="sim">SIM</span></div><span class="small" id="evoupd"></span></div><div id="evosum" style="margin-top:6px"></div><div class="small" id="evobest" style="margin-top:6px"></div><div id="evobots" style="margin-top:6px"></div><div class="lbl" style="margin:10px 0 4px">Geburten &amp; Todesfälle</div><div id="evoev"></div><div class="small" id="evorules" style="margin-top:8px"></div></div>
 <div class="note">Simulation mit Spielgeld auf echten Live-Kursen (DexScreener, GeckoTerminal, RugCheck). Keine echten Trades, kein Wallet. Daten werden etwa jede Minute aktualisiert.</div>
 </div><script>
@@ -46,6 +48,33 @@ const BN={scout:'Scout',analyst:'Analyst',executor:'Executor',risk:'Risk'};
 const ST={idle:'wartet',active:'aktiv',scanning:'scannt',analyzing:'prüft',paused:'pausiert',waiting:'wartet',stopped:'gestoppt'};
 function logo(p){return p.image?`<img class="logo" src="${p.image}" onerror="this.outerHTML='<div class=logo>${p.symbol.slice(0,3)}</div>'">`:`<div class="logo">${p.symbol.slice(0,3)}</div>`}
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const CVCOL=['#3ddc84','#4ea1ff','#f5c542','#ff7ab6','#b48cff','#ff9f43','#2ee6d6','#ff5c5c','#c7e84a','#e0e0e0','#8a7dff','#ffb3a7','#5ad1ff','#d9a441','#7bed9f','#ff6b81','#a4b0be','#eccc68','#70a1ff','#ff4757'];
+const hm=e=>new Date(e*1000).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Berlin'});
+function cvChart(series,hl,o){o=o||{};const W=340,H=o.h||190,L=44,R=8,T=8,B=20;let xs=[],ys=[];
+series.forEach(s=>s.pts.forEach(p=>{xs.push(p[0]);if(p[1]!=null)ys.push(p[1])}));hl.forEach(h=>ys.push(h.y));if(xs.length<2||!ys.length)return '<div class="small">Noch zu wenige Datenpunkte.</div>';
+let x0=Math.min(...xs),x1=Math.max(...xs);if(o.x1)x1=Math.max(x1,o.x1);const y0r=Math.min(...ys),y1r=Math.max(...ys),pad=(y1r-y0r||1)*0.06,y0=y0r-pad,y1=y1r+pad;
+const X=t=>L+(t-x0)/((x1-x0)||1)*(W-L-R),Y=v=>T+(1-(v-y0)/((y1-y0)||1))*(H-T-B);let g='';
+for(let i=0;i<=3;i++){const v=y0+(y1-y0)*i/3,yy=Y(v);g+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="#242830"/><text x="${L-4}" y="${yy+3}" fill="#9aa0a6" font-size="9" text-anchor="end">$${v.toLocaleString('de-DE',{maximumFractionDigits:v<100?1:0})}</text>`}
+for(let i=0;i<=3;i++){const t=x0+(x1-x0)*i/3;g+=`<text x="${X(t)}" y="${H-5}" fill="#9aa0a6" font-size="9" text-anchor="${i==0?'start':i==3?'end':'middle'}">${hm(t)}</text>`}
+if(o.gaps){series.forEach(s=>{const p=s.pts;for(let i=1;i<p.length-1;i++)if(p[i][1]==null){const a=X(p[i-1][0]),b=X(p[i+1][0]);g+=`<rect x="${a}" y="${T}" width="${Math.max(1,b-a)}" height="${H-T-B}" fill="#ffffff0d"/>`}})}
+hl.forEach(h=>{const yy=Y(h.y);g+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="${h.c}" stroke-dasharray="4 3" stroke-width="1"/><text x="${W-R-2}" y="${yy-3}" fill="${h.c}" font-size="9" text-anchor="end">${h.l}</text>`});
+series.forEach(s=>{let d='',pen=false,last=null;s.pts.forEach(p=>{if(p[1]==null){pen=false;return}d+=(pen?'L':'M')+X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1);pen=true;last=p});
+g+=`<path d="${d}" fill="none" stroke="${s.c}" stroke-width="${s.w||1.6}" stroke-linejoin="round" ${s.dash?'stroke-dasharray="3 2"':''} opacity="${s.op||1}"/>`;
+if(s.first&&s.pts.length&&s.pts[0][1]!=null)g+=`<circle cx="${X(s.pts[0][0])}" cy="${Y(s.pts[0][1])}" r="2" fill="${s.c}"/>`;
+if(s.dead&&last)g+=`<text x="${X(last[0])}" y="${Y(last[1])+3}" fill="${s.c}" font-size="9" text-anchor="middle">✝</text>`});
+return `<svg viewBox="0 0 ${W} ${H}" style="height:auto;width:100%">${g}</svg>`}
+function renderCurves(){const C=S&&S.curves;if(!C){$('cvmain').style.display='none';$('cvevo').style.display='none';return}
+const M=C.main||[];if(M.length>1){$('cvmain').style.display='block';const st=C.main_start||680,sp=C.main_stop;const lv=M.filter(p=>p[1]!=null);const lastv=lv.length?lv[lv.length-1][1]:st;
+$('cvmainsvg').innerHTML=cvChart([{pts:M,c:lastv>=st?'#3ddc84':'#ff5c5c',w:1.8}],[{y:st,c:'#9aa0a6',l:'Start '+usd(st)}].concat(sp!=null?[{y:sp,c:'#ff5c5c',l:'Konto-Stop '+usd(sp)}]:[]),{gaps:true,h:200});
+const gaps=M.filter(p=>p[1]==null).length;$('cvmainnote').textContent=`Equity = Cash + offene Positionen zum Marktpreis, seit Neustart ${C.main_started_at?new Date(C.main_started_at).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Berlin'}):''} MEZ. Jetzt ${usd(lastv)}.`+(gaps?` Graue Felder/Lücken (${gaps}) = keine Daten, meist weil der Rechner pausiert war – nichts interpoliert.`:'')}else $('cvmain').style.display='none';
+const Bo=C.bots||{},ids=Object.keys(Bo);if(!ids.length){$('cvevo').style.display='none';return}$('cvevo').style.display='block';
+const live={};((S.evo&&S.evo.bots)||[]).forEach(b=>live[b.id]=b);const col=k=>CVCOL[(parseInt(k)-1)%CVCOL.length];
+const sr=ids.map(k=>{const s=Bo[k];return {k,pts:s.pts,c:col(k),dead:!!s.died,dash:!!s.died,op:s.died?0.55:1,first:true,w:1.3}});const nowT=Math.max(...ids.map(k=>{const p=Bo[k].pts;return p.length?p[p.length-1][0]:0}));
+$('cvevosvg').innerHTML=cvChart(sr,[{y:68,c:'#9aa0a6',l:'Start $68'}],{gaps:false,h:210,x1:nowT});
+const ord=ids.slice().sort((a,b)=>{const da=!!Bo[a].died,db=!!Bo[b].died;if(da!=db)return da?1:-1;const ea=live[a]?live[a].equity:0,eb=live[b]?live[b].equity:0;return eb-ea});
+$('cvevoleg').innerHTML=ord.map(k=>{const s=Bo[k],b=live[k];const lp=s.pts.filter(p=>p[1]!=null);const v=b?b.equity:(lp.length?lp[lp.length-1][1]:0);const pc=s.start?(v/s.start-1)*100:0;
+return `<span class="small" style="white-space:nowrap${s.died?';opacity:.6':''}"><i style="display:inline-block;width:10px;height:3px;background:${col(k)};vertical-align:middle;margin-right:3px"></i>${s.died?'✝ ':''}#${k}${s.gen>1?' G'+s.gen:''} ${usd(v)} <span class="${pc>=0?'up':'down'}">${pc>=0?'+':''}${pc.toLocaleString('de-DE',{maximumFractionDigits:1})}%</span></span>`}).join('');
+$('cvevonote').textContent='Eine Linie pro Bot, Punkt = Geburt (Start ab 10:59 MEZ mit je $68), ✝ = Tod (Linie endet). Unterbrochene Linien = keine Daten (Aufzeichnung startete 11:16 MEZ bzw. Rechner pausiert) – nichts interpoliert.'}
 function renderEvo(){const E=S&&S.evo;if(!E||!E.bots){$('evocard').style.display='none';return}$('evocard').style.display='block';
 const k=v=>'$'+(v/1000).toLocaleString('de-DE',{maximumFractionDigits:0})+'k';const sg=v=>(v>=0?'+':'')+v.toLocaleString('de-DE',{maximumFractionDigits:1})+'%';
 $('evoupd').textContent=E.last_cycle?'Stand '+t(E.last_cycle)+(E.paused?' · pausiert':''):'';
@@ -81,7 +110,7 @@ else if(tab==='watch'){const ws=Object.values(S.watchlist||{}).sort((a,b)=>b.add
 else if(tab==='trades'){html=S.trades.length?S.trades.map(x=>`<div class="item"><div class="logo">${x.side==='BUY'?'K':'V'}</div><div class="grow"><b>${x.side==='BUY'?'Kauf':'Verkauf'} ${x.symbol}</b><div class="small">${t(x.t)} · Slippage ${x.slippage_pct}%${x.reason?' · '+x.reason:''}</div></div><div class="r"><b>${usd(x.usd)}</b>${x.pnl_usd!=null?`<div class="small ${x.pnl_usd>=0?'up':'down'}">${usd(x.pnl_usd)} (${pct(x.pnl_pct)})</div>`:''}</div></div>`).join(''):'<div class="small">Noch keine Trades.</div>'}
 else{html=Object.keys(BN).map(k=>{const b=S.bots[k];return `<div class="item"><div class="logo">${BN[k][0]}</div><div class="grow"><b>${BN[k]}</b><div class="small">${b.last}</div></div><div class="small">${ST[b.status]||b.status}</div></div>`}).join('')+
 `<div class="lbl" style="margin:10px 0 4px">Aussortiert nach Grund</div>`+Object.entries(st.kill_reasons).sort((a,b)=>b[1]-a[1]).map(([r,n])=>`<div class="row small"><span>${r}</span><span>${n}</span></div>`).join('')}
-$('list').innerHTML=html;try{renderEvo()}catch(e){}
+$('list').innerHTML=html;try{renderEvo()}catch(e){}try{renderCurves()}catch(e){}
 $('events').innerHTML=(S.events||[]).slice(0,15).map(e=>`<div class="ev"><span class="small">${t(e.t)}</span> <span class="${e.kind==='sell'?(e.pnl_usd>=0?'up':'down'):''}">${e.text}</span></div>`).join('')||'<div class="small">Noch keine Meldungen.</div>'}
 async function load(){try{const r=await fetch('https://gist.githubusercontent.com/g7fbz9c5cc-coder/3987fbe42260cd2aa2e28f02e06f01fc/raw/state.json?t='+Date.now(),{cache:'no-store'});const d=await r.json();if(d&&d.stats){S=d;render()}}catch(e){}}
 document.querySelectorAll('.tab').forEach(el=>el.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));el.classList.add('on');tab=el.dataset.t;render()});
