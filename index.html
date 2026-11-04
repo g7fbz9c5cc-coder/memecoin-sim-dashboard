@@ -137,16 +137,16 @@ const lv=(E.events||[]).filter(e=>['birth','death','refill','start'].includes(e.
 $('evoev').innerHTML=lv.length?lv.map(e=>`<div class="ev"><span class="small">${t(e.t)}</span> ${e.kind==='death'?'💀 ':e.kind==='birth'?'🐣 ':e.kind==='refill'?'➕ ':'🌱 '}${esc(e.text)}</div>`).join(''):'<div class="small">Noch keine Geburten oder Todesfälle.</div>';
 renderAI(E);const R=E.rules||{};$('evorules').textContent=`Jeder Bot startet mit ${usd(R.start_money||68)} Spielgeld und eigenen Regeln. Tod unter ${usd(R.death_below||10)}. Fortpflanzung alle ${R.repro_every_h||6} Std. Laufzeit ab ${R.repro_min_trades||5} abgeschlossenen Trades und Gewinn (Kind bekommt die Hälfte des freien Geldes, Regeln leicht mutiert). Max. ${R.cap||20} Bots; unter ${R.min_pop||4} wird mit Kopien des besten Bots aufgefüllt. Unabhängig vom Haupt-Bot oben.`}
 
-const LIVE_PAIR={};let LIVE_KEY='';
+const LIVE_PAIR={};let LIVE_KEY=null,LIVE_TR=null;
 function livePositions(){const m={};const add=(tok,sym,who,pool)=>{if(!/^[A-Za-z0-9]{20,64}$/.test(tok||''))return;const x=m[tok]||(m[tok]={tok,sym,who:[],pool:null});if(pool&&/^[A-Za-z0-9]{20,64}$/.test(pool))x.pool=pool;if(!x.who.includes(who))x.who.push(who)};
 const P=(S&&S.positions)||{};for(const k in P){const o=P[k]||{};add(o.token||o.mint||k,o.symbol,'Haupt-Bot',o.pool||o.pair||o.pool_address||o.pair_address)}
-const B=S&&S.evo&&S.evo.trades&&S.evo.trades.bots||{};for(const id in B)for(const o of (B[id].open||[]))add(o.token,o.symbol,'#'+id,o.pool||o.pair);return Object.values(m)}
+if(S&&S.evo&&S.evo.trades&&S.evo.trades.bots)LIVE_TR=S.evo.trades;const B=LIVE_TR&&LIVE_TR.bots||{};for(const id in B)for(const o of (B[id].open||[]))add(o.token,o.symbol,'#'+id,o.pool||o.pair);return Object.values(m)}
 async function livePair(tok){if(LIVE_PAIR[tok]!==undefined)return LIVE_PAIR[tok];let r=null;
 try{const d=await (await fetch('https://api.geckoterminal.com/api/v2/networks/solana/tokens/'+tok+'/pools?page=1')).json();const ps=(d.data||[]).sort((x,y)=>(+y.attributes.reserve_in_usd||0)-(+x.attributes.reserve_in_usd||0));if(ps.length)r=ps[0].attributes.address}catch(e){}
 if(!r){try{const d=await (await fetch('https://api.dexscreener.com/latest/dex/tokens/'+tok)).json();const ps=(d.pairs||[]).filter(p=>p.chainId==='solana').sort((a,b)=>((b.liquidity||{}).usd||0)-((a.liquidity||{}).usd||0));if(ps.length)r=ps[0].pairAddress}catch(e){}}
 LIVE_PAIR[tok]=r;return r}
 async function renderLive(){const L=livePositions(),el=$('livecharts');if(!el)return;const key=L.map(x=>x.tok+x.who.join()).join('|');if(key===LIVE_KEY)return;LIVE_KEY=key;
-if(!L.length){el.innerHTML='<div class="small">Gerade keine offenen Positionen.</div>';return}
+if(!L.length){el.innerHTML=LIVE_TR||(S&&S.positions&&Object.keys(S.positions).length)?'<div class="small">Gerade keine offenen Positionen.</div>':'<div class="small">Positionsdaten kommen gerade nicht an – gleich nochmal versuchen.</div>';if(!LIVE_TR)LIVE_KEY=null;return}
 await Promise.all(L.map(async x=>{if(!x.pool)x.pool=await livePair(x.tok)}));
 el.innerHTML=L.map(x=>{const ds=`https://dexscreener.com/solana/${x.pool||x.tok}`;const fb=`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;color:#888;font-size:13px;z-index:0">Chart lädt … Falls hier nichts erscheint: Chart konnte nicht geladen werden – unten auf DexScreener öffnen.</div>`;
 const fr=x.pool?`<iframe src="https://www.geckoterminal.com/solana/pools/${x.pool}?embed=1&info=0&swaps=0&grayscale=0&light_chart=0" loading="lazy" allowfullscreen style="position:relative;z-index:1;width:100%;height:400px;border:0;background:transparent" title="${esc(x.sym||'')} Chart"></iframe>`:'';
