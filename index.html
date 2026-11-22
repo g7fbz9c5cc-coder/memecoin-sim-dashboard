@@ -54,7 +54,7 @@ details.sub>summary:before{content:'▸ ';}details.sub[open]>summary:before{cont
 <div class="bots" id="bots"></div>
 <div class="tabs"><div class="tab on" data-t="pos">Positionen</div><div class="tab" data-t="watch">Watchlist</div><div class="tab" data-t="trades">Trades</div><div class="tab" data-t="bots">Bots</div></div>
 <div class="card" id="list"></div>
-<details class="sec" data-k="sniper" id="snipercard" open style="display:none"><summary>🎯 Sniper A (ohne Pump.fun) – Spielgeld <span class="small" id="sumsn"></span></summary><div class="in">
+<details class="sec" data-k="sniper" id="snipercard" open style="display:none"><summary>🎯 Sniper A (B + Filter: Liq ≥ $20k, Top10 < 20%) – Spielgeld <span class="small" id="sumsn"></span></summary><div class="in">
 <div class="stopban" id="snban"></div><div class="small warn card" id="snstale" style="display:none;margin:0 0 6px"></div>
 <div class="row"><div><div class="lbl">Guthaben (netto) · Start <span id="snstart"></span></div><div style="font-size:26px;font-weight:750;line-height:1.15" id="snbal">–</div></div><div class="r"><div id="snpnl" style="font-weight:600"></div><div class="small" id="snpnl2"></div></div></div>
 <div class="bar"><i id="snbar" style="width:0"></i></div><div class="small" id="snbarnote" style="margin-top:3px"></div>
@@ -63,7 +63,7 @@ details.sub>summary:before{content:'▸ ';}details.sub[open]>summary:before{cont
 <div class="lbl" style="margin-top:10px">Letzte Trades</div><div id="sntrades" class="scroll" style="max-height:40vh"></div>
 <details class="sub" data-k="snrej"><summary>Aussortiert nach Grund</summary><div id="snrej"></div></details>
 <details class="sub" data-k="snrules"><summary>Regeln des Snipers</summary><div class="small" id="snrules" style="line-height:1.5"></div></details>
-<div class="small" style="margin-top:6px">Eigener Bot mit eigenem Konto, nur Spielgeld. Kauft brandneue Pools (1–30 Min alt) nach Rug-Check, mit absichtlich schlechten Preisen (Slippage) – Rugs sind hier normal.</div></div></details>
+<div class="small" style="margin-top:6px">Sniper A zum Vergleich: gleiche Basisregeln wie Sniper B (inkl. Pump.fun-Ausnahme), zusätzlich Liquidität mindestens $20k und Top-10-Holder unter 20 %. Eigenes Konto, nur Spielgeld. Kauft brandneue Pools (1–30 Min alt) nach Rug-Check, mit absichtlich schlechten Preisen (Slippage) – Rugs sind hier normal.</div></div></details>
 <details class="sec" data-k="sniperb" id="snipercardb" open style="display:none"><summary>🎯 Sniper B (mit Pump.fun) – Spielgeld <span class="small" id="sumsb"></span></summary><div class="in">
 <div class="stopban" id="sbban"></div><div class="small warn card" id="sbstale" style="display:none;margin:0 0 6px"></div>
 <div class="row"><div><div class="lbl">Guthaben (netto) · Start <span id="sbstart"></span></div><div style="font-size:26px;font-weight:750;line-height:1.15" id="sbbal">–</div></div><div class="r"><div id="sbpnl" style="font-weight:600"></div><div class="small" id="sbpnl2"></div></div></div>
@@ -73,7 +73,7 @@ details.sub>summary:before{content:'▸ ';}details.sub[open]>summary:before{cont
 <div class="lbl" style="margin-top:10px">Letzte Trades</div><div id="sbtrades" class="scroll" style="max-height:40vh"></div>
 <details class="sub" data-k="sbrej"><summary>Aussortiert nach Grund</summary><div id="sbrej"></div></details>
 <details class="sub" data-k="sbrules"><summary>Regeln von Sniper B</summary><div class="small" id="sbrules" style="line-height:1.5"></div></details>
-<div class="small" style="margin-top:6px">Zweiter Sniper zum Vergleich: gleiche Regeln wie Sniper A, aber MIT Pump.fun-Ausnahme (LP muss nicht gesperrt sein). Eigenes Konto, nur Spielgeld. Kauft brandneue Pools (1–30 Min alt) nach Rug-Check, mit absichtlich schlechten Preisen (Slippage) – Rugs sind hier normal.</div></div></details>
+<div class="small" style="margin-top:6px">Sniper B zum Vergleich: unveränderte Regeln (inkl. Pump.fun-Ausnahme, ohne die engeren Filter von A). Eigenes Konto, nur Spielgeld. Kauft brandneue Pools (1–30 Min alt) nach Rug-Check, mit absichtlich schlechten Preisen (Slippage) – Rugs sind hier normal.</div></div></details>
 <details class="sec" data-k="copytr" id="copycard" open style="display:none"><summary>👥 Copy-Trader (Spielgeld) <span class="small" id="sumcp"></span></summary><div class="in">
 <div class="stopban" id="cpban"></div><div class="small warn card" id="cpstale" style="display:none;margin:0 0 6px"></div>
 <div class="row"><div><div class="lbl">Guthaben (netto) · Start <span id="cpstart"></span></div><div style="font-size:26px;font-weight:750;line-height:1.15" id="cpbal">–</div></div><div class="r"><div id="cppnl" style="font-weight:600"></div><div class="small" id="cppnl2"></div></div></div>
