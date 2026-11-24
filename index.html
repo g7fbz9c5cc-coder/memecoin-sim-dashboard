@@ -172,19 +172,21 @@ details.sec{
   margin:0 0 12px;overflow:hidden;scroll-margin-top:62px;
 }
 details.sec>summary{
-  list-style:none;cursor:pointer;padding:16px 16px;
-  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  list-style:none;cursor:pointer;padding:14px 16px;
+  display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;
+  align-items:center;column-gap:10px;row-gap:2px;
   font-weight:650;font-size:16px;min-height:56px;
   -webkit-tap-highlight-color:transparent;
 }
+details.sec>summary .sec-name{grid-column:1;grid-row:1;white-space:nowrap}
 details.sec>summary::-webkit-details-marker,
 details.sub>summary::-webkit-details-marker,
 #cobots summary::-webkit-details-marker{display:none}
-details.sec>summary:after{content:'▸';color:var(--t2);font-size:14px;flex:none}
+details.sec>summary:after{content:'▸';color:var(--t2);font-size:14px;flex:none;grid-column:2;grid-row:1/span 2}
 details.sec[open]>summary:after{content:'▾'}
 details.sec>summary .small{
-  font-weight:400;margin-left:auto;text-align:right;min-width:0;
-  font-variant-numeric:tabular-nums;white-space:normal;font-size:12.5px;line-height:1.35;
+  font-weight:400;margin-left:0;text-align:left;min-width:0;grid-column:1;grid-row:2;
+  font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px;line-height:1.35;
 }
 details.sec>.in{padding:0 16px 18px}
 details.sec>.in>.card,details.sec .card.flat{border:0;padding:0;margin:0;background:none}
@@ -236,7 +238,7 @@ th{color:var(--t2);font-weight:650;font-size:11px}
 <p class="hint">Tippe auf eine Zeile für die Details.</p>
 
 <details class="sec" data-k="bot-main" id="sec-main">
-<summary>Haupt-Bot <span class="small" id="summain"></span></summary>
+<summary><span class="sec-name">Haupt-Bot</span><span class="small" id="summain"></span></summary>
 <div class="in">
 <div class="card"><div class="hero"><div><div class="lbl">Guthaben</div><div class="bal" id="bal">–</div></div><div class="r"><div id="pnl" class="up"></div><div class="small" id="kpinet"></div></div></div><svg id="chart" viewBox="0 0 500 120" preserveAspectRatio="none"></svg></div>
 <div class="kpis" id="kpis"><div class="kpi"><div class="lbl">Offen</div><b id="kpos">–</b><div class="small" id="kposv"></div></div><div class="kpi"><div class="lbl">Trades</div><b id="ktr">–</b><div class="small" id="ktrv"></div></div><div class="kpi"><div class="lbl">Konto-Stop</div><b id="kstop">–</b><div class="small" id="kstopv"></div></div><div class="kpi" id="kpi-evo-wrap" style="display:none"><div class="lbl">Evolution</div><b id="kevo">–</b><div class="small" id="kevov"></div></div></div>
@@ -250,7 +252,7 @@ th{color:var(--t2);font-weight:650;font-size:11px}
 </div>
 </details>
 
-<details class="sec" data-k="bot-sn" id="snipercard" style="display:none"><summary>Sniper A <span class="small" id="sumsn"></span></summary><div class="in">
+<details class="sec" data-k="bot-sn" id="snipercard" style="display:none"><summary><span class="sec-name">Sniper A</span><span class="small" id="sumsn"></span></summary><div class="in">
 <div class="stopban" id="snban"></div><div class="small" id="snwave" style="display:none;margin:0 0 6px"></div><div class="small warn card" id="snstale" style="display:none;margin:0 0 6px"></div>
 <div class="row"><div><div class="lbl">Guthaben (netto) · Start <span id="snstart"></span></div><div style="font-size:26px;font-weight:750;line-height:1.15" id="snbal">–</div></div><div class="r"><div id="snpnl" style="font-weight:600"></div><div class="small" id="snpnl2"></div></div></div>
 <div class="bar"><i id="snbar" style="width:0"></i></div><div class="small" id="snbarnote" style="margin-top:3px"></div>
@@ -261,7 +263,7 @@ th{color:var(--t2);font-weight:650;font-size:11px}
 <details class="sub" data-k="snrules"><summary>Regeln des Snipers</summary><div class="small" id="snrules" style="line-height:1.5"></div></details>
 <div class="small" style="margin-top:6px">Sniper A zum Vergleich: gleiche Basisregeln wie Sniper B (inkl. Pump.fun-Ausnahme), zusätzlich Liquidität mindestens $20k und Top-10-Holder unter 20 %. Seit 24.11. bei beiden Snipern: mindestens 300 Käufe in der letzten Stunde und Kaufpause nach Stop-Serie. Eigenes Konto, nur Spielgeld. Kauft brandneue Pools (1–30 Min alt) nach Rug-Check, mit absichtlich schlechten Preisen (Slippage) – Rugs sind hier normal.</div></div></details>
 
-<details class="sec" data-k="bot-sb" id="snipercardb" style="display:none"><summary>Sniper B <span class="small" id="sumsb"></span></summary><div class="in">
+<details class="sec" data-k="bot-sb" id="snipercardb" style="display:none"><summary><span class="sec-name">Sniper B</span><span class="small" id="sumsb"></span></summary><div class="in">
 <div class="stopban" id="sbban"></div><div class="small" id="sbwave" style="display:none;margin:0 0 6px"></div><div class="small warn card" id="sbstale" style="display:none;margin:0 0 6px"></div>
 <div class="row"><div><div class="lbl">Guthaben (netto) · Start <span id="sbstart"></span></div><div style="font-size:26px;font-weight:750;line-height:1.15" id="sbbal">–</div></div><div class="r"><div id="sbpnl" style="font-weight:600"></div><div class="small" id="sbpnl2"></div></div></div>
 <div class="bar"><i id="sbbar" style="width:0"></i></div><div class="small" id="sbbarnote" style="margin-top:3px"></div>
@@ -272,7 +274,7 @@ th{color:var(--t2);font-weight:650;font-size:11px}
 <details class="sub" data-k="sbrules"><summary>Regeln von Sniper B</summary><div class="small" id="sbrules" style="line-height:1.5"></div></details>
 <div class="small" style="margin-top:6px">Sniper B zum Vergleich: Basisregeln (inkl. Pump.fun-Ausnahme, ohne die engeren Filter von A); seit 24.11. wie A zusätzlich mindestens 300 Käufe in der letzten Stunde und Kaufpause nach Stop-Serie. Eigenes Konto, nur Spielgeld. Kauft brandneue Pools (1–30 Min alt) nach Rug-Check, mit absichtlich schlechten Preisen (Slippage) – Rugs sind hier normal.</div></div></details>
 
-<details class="sec" data-k="bot-cp" id="copycard" style="display:none"><summary>Copy-Trader <span class="small" id="sumcp"></span></summary><div class="in">
+<details class="sec" data-k="bot-cp" id="copycard" style="display:none"><summary><span class="sec-name">Copy-Trader</span><span class="small" id="sumcp"></span></summary><div class="in">
 <div class="stopban" id="cpban"></div><div class="small warn card" id="cpstale" style="display:none;margin:0 0 6px"></div>
 <div class="row"><div><div class="lbl">Guthaben (netto) · Start <span id="cpstart"></span></div><div style="font-size:26px;font-weight:750;line-height:1.15" id="cpbal">–</div></div><div class="r"><div id="cppnl" style="font-weight:600"></div><div class="small" id="cppnl2"></div></div></div>
 <div class="bar"><i id="cpbar" style="width:0"></i></div><div class="small" id="cpbarnote" style="margin-top:3px"></div>
@@ -284,7 +286,7 @@ th{color:var(--t2);font-weight:650;font-size:11px}
 <details class="sub" data-k="cprules"><summary>Regeln des Copy-Traders</summary><div class="small" id="cprules" style="line-height:1.5"></div></details>
 <div class="small" style="margin-top:6px">Eigener Bot mit eigenem Konto, nur Spielgeld. Beobachtet öffentliche Solana-Wallets (nur Lesen von On-Chain-Daten) und macht deren Käufe/Verkäufe mit Verzögerung und schlechteren Preisen nach. Die Wallets wurden automatisch gefunden (kein Gewinnversprechen) – wer verliert, wird pausiert.</div></div></details>
 
-<details class="sec" data-k="bot-evo" id="sec-evo"><summary>Evolution <span class="small" id="sumevo"></span></summary><div class="in"><div class="card" id="evocard" style="display:none"><div id="evosum"></div><div class="small" id="evobest" style="margin-top:4px"></div>
+<details class="sec" data-k="bot-evo" id="sec-evo"><summary><span class="sec-name">Evolution</span><span class="small" id="sumevo"></span></summary><div class="in"><div class="card" id="evocard" style="display:none"><div id="evosum"></div><div class="small" id="evobest" style="margin-top:4px"></div>
 <div id="labnow" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)"><div class="lbl">Gerade gekauft / offen im Labor</div><div id="labopen"></div><div class="lbl" style="margin-top:10px">Letzte Labor-Käufe</div><div id="labbuys"></div></div>
 <div id="lab" style="display:none;margin-top:6px"><div class="small" id="labhead"></div><div class="scroll" id="labrows" style="margin-top:4px"></div><div class="small" id="labki" style="margin-top:6px"></div><div class="small" id="labnote" style="margin-top:6px"></div></div>
 <details class="sub" data-k="evobots"><summary>Alle Bots &amp; ihre Regeln</summary><div class="scroll" id="evobots"></div></details><details class="sub" id="evoai" style="display:none"><summary>🤖 KI-Entscheidungen (KI-Prüfer)</summary><div id="evoailist"></div><div class="small" id="evoainote" style="margin-top:4px"></div></details>
@@ -571,6 +573,7 @@ const totB=parts.reduce((a,x)=>a+x.b,0),totS=parts.reduce((a,x)=>a+x.s,0);
 const totP=totS?((totB/totS)-1)*100:null;
 const tb=$('ov-total-bal'),tp=$('ov-total-pct');if(tb)tb.textContent=usd(totB);if(tp){tp.textContent=totP==null?'':pctDE(totP);tp.className='ov-pct '+(totP==null?'':totP>=0?'up':'down');}
 const st=S.stats||{};
+if($('sumziel')&&S)$('sumziel').textContent=`${usd(S.goal||0)} · ${Math.max(0,Math.min(100,Math.round((S.equity-S.start_balance)/((S.goal-S.start_balance)||1)*100)))} %`;
 if($('summain'))$('summain').textContent=figs(st.sold||st.bought,winPct(st,S.trades),lastSym(S.trades));
 if($('sumevo')&&E)$('sumevo').textContent=figs(evoTrades(E)||null,evoRate(E),evoLast(E));
 if(sn&&$('sumsn'))$('sumsn').textContent=figs((sn.stats||{}).sold||(sn.stats||{}).bought,winPct(sn.stats,sn.trades),lastSym(sn.trades));
