@@ -20,110 +20,117 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+html{-webkit-text-size-adjust:100%}
 body{
   margin:0;
-  background:radial-gradient(1200px 500px at 50% -80px,#182033 0%,var(--bg) 55%);
-  background-attachment:fixed;
+  background:var(--bg);
   color:var(--t);
   font:15px/1.45 -apple-system,system-ui,Segoe UI,Roboto,sans-serif;
   padding-bottom:env(safe-area-inset-bottom);
 }
 a{color:inherit}
-.wrap{
-  max-width:560px;
-  margin:0 auto;
-  padding:0 14px 36px;
-}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px 40px}
 .top{
-  position:sticky;
-  top:0;
-  z-index:50;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  margin:0 -14px 12px;
-  padding:max(10px,env(safe-area-inset-top)) 14px 10px;
+  position:sticky;top:0;z-index:50;
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  margin:0 -16px 14px;
+  padding:max(12px,env(safe-area-inset-top)) 16px 12px;
   background:var(--header);
   border-bottom:1px solid var(--line);
 }
 .top h1{font-size:17px;margin:0;font-weight:700;letter-spacing:-.02em}
 .sim{
-  display:inline-block;
-  font-size:9px;
-  font-weight:800;
-  letter-spacing:.08em;
-  background:var(--a);
-  color:#111;
-  border-radius:6px;
-  padding:2px 6px;
-  vertical-align:middle;
-  margin-left:7px;
+  display:inline-block;font-size:9px;font-weight:800;letter-spacing:.08em;
+  background:var(--a);color:#111;border-radius:6px;padding:2px 6px;
+  vertical-align:middle;margin-left:7px;
 }
-#upd{font-variant-numeric:tabular-nums;color:var(--t2);font-size:11.5px;white-space:nowrap}
-.lbl{color:var(--t2);font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
-.small{font-size:12px;color:var(--t2)}
+#upd{font-variant-numeric:tabular-nums;color:var(--t2);font-size:12px;white-space:nowrap}
+.lbl{color:var(--t2);font-size:12px;font-weight:600}
+.small{font-size:12.5px;color:var(--t2)}
 .r{text-align:right;font-variant-numeric:tabular-nums}
 .up{color:var(--g)}
 .down{color:var(--r)}
-.card{scroll-margin-top:62px;
+/* Overview list */
+.overview{
   background:var(--card);
   border:1px solid var(--line);
   border-radius:var(--radius);
-  padding:14px;
+  padding:4px 6px 6px;
+  margin:0 0 18px;
+}
+.ov-total,.ov-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:end;
+  gap:2px 12px;
+  padding:14px 12px;
+  width:100%;
+}
+.ov-total{border-bottom:1px solid var(--line);margin:0 6px 4px;padding:16px 10px 16px}
+.ov-name{font-size:13px;font-weight:650;color:var(--t2);grid-column:1;align-self:start}
+.ov-total .ov-name{font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.ov-total .ov-bal{font-size:30px;font-weight:750;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.05;color:var(--t);grid-column:1}
+.ov-total .ov-pct{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;align-self:end;grid-column:2;grid-row:2}
+.ov-row{
+  appearance:none;-webkit-appearance:none;
+  background:transparent;border:0;border-radius:12px;
+  color:inherit;text-align:left;cursor:pointer;
+  font:inherit;padding:14px 12px;
+  -webkit-tap-highlight-color:transparent;
+}
+.ov-row + .ov-row{margin-top:0}
+.ov-row:active{background:var(--card2)}
+.ov-row .ov-name{
+  font-size:15px;font-weight:650;color:var(--t);
+  display:flex;align-items:center;gap:8px;
+}
+.ov-open{font-size:12.5px;color:var(--t2);font-weight:500;align-self:center}
+.ov-row .ov-bal{font-size:22px;font-weight:730;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.1;grid-column:1}
+.ov-row .ov-pct{font-size:15px;font-weight:650;font-variant-numeric:tabular-nums;grid-column:2;grid-row:2}
+.ampel{
+  display:inline-block;width:9px;height:9px;border-radius:50%;flex:none;
+  background:var(--t2);
+}
+.ampel.ok{background:var(--g);box-shadow:0 0 0 3px var(--gdim)}
+.ampel.pause{background:var(--a);box-shadow:0 0 0 3px var(--adim)}
+.ampel.stop{background:var(--r);box-shadow:0 0 0 3px var(--rdim)}
+.hint{font-size:12px;color:var(--t2);text-align:center;margin:-8px 0 18px}
+/* Alerts */
+.alerts{display:flex;flex-direction:column;gap:8px;margin:0 0 14px}
+.alerts:empty{display:none;margin:0}
+.alert{
+  border-radius:14px;padding:12px 14px;font-weight:700;font-size:14px;line-height:1.4;
+}
+.alert small{display:block;font-weight:500;margin-top:3px;opacity:.9}
+.alert.stop,.stopban{background:var(--rdim);border:1px solid rgba(255,93,93,.45);color:#ffd6d6}
+.alert.pause{background:var(--adim);border:1px solid rgba(245,197,66,.5);color:#ffe7a8}
+.alert.wave{background:var(--rdim);border:1px solid rgba(255,93,93,.45);color:#ffd6d6}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:16px;
   margin:10px 0;
   overflow:hidden;
+  scroll-margin-top:62px;
 }
 .hero{display:flex;justify-content:space-between;align-items:flex-end;gap:8px}
-.bal{font-size:32px;font-weight:750;line-height:1.05;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-#pnl{font-size:14px;font-weight:650;font-variant-numeric:tabular-nums}
-#chart{width:100%;height:64px;display:block;margin-top:10px}
-.strip{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin:0 0 12px;
-}
-.strip-card{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:10px 12px;
-  min-width:0;
-}
-.strip-card:last-child{grid-column:1/-1}
-.strip-card .name{font-size:11px;color:var(--t2);font-weight:650;letter-spacing:.02em}
-.strip-card .amt{font-size:18px;font-weight:730;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.strip-card .pct{font-size:12.5px;font-weight:650;font-variant-numeric:tabular-nums;margin-top:1px}
-.strip-card.up{background:linear-gradient(180deg,var(--gdim),var(--card) 42%)}
-.strip-card.down{background:linear-gradient(180deg,var(--rdim),var(--card) 42%)}
-.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
-.kpi{
-  background:var(--card2);
-  border:1px solid var(--line);
-  border-radius:var(--radius-sm);
-  padding:8px 10px;
-  min-width:0;
-}
-.kpi .lbl{font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kpi b{display:block;font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
-.kpi .small{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bots{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+.bal{font-size:34px;font-weight:750;line-height:1.05;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+#pnl{font-size:15px;font-weight:650;font-variant-numeric:tabular-nums}
+#chart{width:100%;height:64px;display:block;margin-top:12px}
+.kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:14px 0 4px}
+.kpi{background:var(--card2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 10px;min-width:0}
+.kpi .lbl{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi b{display:block;font-size:16px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+.kpi .small{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bots{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
 .bot{
-  min-width:0;
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:999px;
-  padding:6px 8px;
-  text-align:center;
-  font-size:12px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:999px;
+  padding:8px 10px;text-align:center;font-size:12.5px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.bot b{font-size:12px;font-weight:650}
-.bot span{font-size:11px;color:var(--t2);margin-left:3px}
+.bot b{font-size:12.5px;font-weight:650}
+.bot span{font-size:12px;color:var(--t2);margin-left:3px}
 .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;background:var(--t2);vertical-align:middle}
 .dot.active,.dot.scanning,.dot.analyzing{background:var(--g)}
 .dot.paused,.dot.waiting{background:var(--a)}
@@ -132,115 +139,59 @@ a{color:inherit}
 .btn{background:#2a2f37;color:var(--t);border:0;border-radius:10px;padding:8px 12px;font-weight:650;font-size:13px}
 .bar{height:6px;background:#242830;border-radius:6px;overflow:hidden;margin-top:8px}
 .bar i{display:block;height:100%;background:var(--g)}
-.tabs{
-  display:flex;
-  gap:4px;
-  margin-top:8px;
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:4px;
-}
+.tabs{display:flex;gap:4px;margin-top:12px;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:4px}
 .tab{
-  flex:1;
-  text-align:center;
-  padding:9px 2px;
-  border-radius:10px;
-  color:var(--t2);
-  font-size:13px;
-  font-weight:650;
-  cursor:pointer;
+  flex:1;text-align:center;padding:9px 2px;border-radius:10px;color:var(--t2);
+  font-size:13px;font-weight:650;cursor:pointer;min-height:40px;
   -webkit-tap-highlight-color:transparent;
-  min-height:40px;
 }
 .tab.on{color:var(--t);background:#2a3140}
 #list{max-height:62vh;overflow:auto;-webkit-overflow-scrolling:touch;margin-top:8px}
-.item{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  padding:10px 0;
-  border-bottom:1px solid var(--line);
-  min-width:0;
-}
+.item{display:flex;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);min-width:0}
 .item:last-child{border:0}
-.item b{font-size:14px}
+.item b{font-size:15px}
 .logo{
-  width:30px;height:30px;border-radius:50%;
-  background:#2a2f37;flex:none;object-fit:cover;
-  display:flex;align-items:center;justify-content:center;
-  font-size:10px;font-weight:700;
+  width:30px;height:30px;border-radius:50%;background:#2a2f37;flex:none;object-fit:cover;
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;
 }
 .grow{flex:1;min-width:0;overflow-wrap:anywhere}
-.ev{font-size:13px;padding:8px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.ev{font-size:13.5px;padding:10px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
 .ev:last-child{border:0}
 svg{width:100%;display:block}
 .stopban{
-  display:none;
-  background:var(--rdim);
-  border:1px solid rgba(255,93,93,.45);
-  color:#ffd6d6;
-  border-radius:14px;
-  padding:10px 12px;
-  margin:8px 0;
-  font-weight:700;
-  font-size:14px;
+  display:none;background:var(--rdim);border:1px solid rgba(255,93,93,.45);color:#ffd6d6;
+  border-radius:14px;padding:10px 12px;margin:8px 0;font-weight:700;font-size:14px;
 }
 .stopban small{display:block;font-weight:400;color:#ffb3b3;margin-top:3px}
-.stopban.pause{
-  background:var(--adim);
-  border-color:rgba(245,197,66,.5);
-  color:#ffe7a8;
-}
+.stopban.pause{background:var(--adim);border-color:rgba(245,197,66,.5);color:#ffe7a8}
 .stopban.pause small{color:#f5d98a}
 .warn{border-color:#f5c542!important;color:#f5c542!important;font-size:13px}
-.note{font-size:12px;color:var(--t2);text-align:center;margin:16px 0 8px;line-height:1.5}
-details.sec{scroll-margin-top:62px;
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  margin:10px 0;
-  overflow:hidden;
+.note{font-size:12px;color:var(--t2);text-align:center;margin:20px 0 8px;line-height:1.5}
+details.sec{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  margin:0 0 12px;overflow:hidden;scroll-margin-top:62px;
 }
 details.sec>summary{
-  list-style:none;
-  cursor:pointer;
-  padding:12px 14px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  font-weight:650;
-  font-size:14.5px;
-  min-height:48px;
+  list-style:none;cursor:pointer;padding:16px 16px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  font-weight:650;font-size:16px;min-height:56px;
   -webkit-tap-highlight-color:transparent;
 }
 details.sec>summary::-webkit-details-marker,
 details.sub>summary::-webkit-details-marker,
 #cobots summary::-webkit-details-marker{display:none}
-details.sec>summary:after{content:'▸';color:var(--t2);font-size:13px;flex:none}
+details.sec>summary:after{content:'▸';color:var(--t2);font-size:14px;flex:none}
 details.sec[open]>summary:after{content:'▾'}
 details.sec>summary .small{
-  font-weight:400;
-  margin-left:auto;
-  text-align:right;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  min-width:0;
-  font-variant-numeric:tabular-nums;
+  font-weight:400;margin-left:auto;text-align:right;min-width:0;
+  font-variant-numeric:tabular-nums;white-space:normal;font-size:12.5px;line-height:1.35;
 }
-details.sec>.in{padding:0 14px 14px}
+details.sec>.in{padding:0 16px 18px}
 details.sec>.in>.card,details.sec .card.flat{border:0;padding:0;margin:0;background:none}
-details.sub{border-top:1px solid var(--line);margin-top:10px}
+details.sub{border-top:1px solid var(--line);margin-top:12px}
 details.sub>summary{
-  list-style:none;
-  cursor:pointer;
-  padding:10px 0 4px;
-  font-size:13px;
-  color:var(--t2);
-  font-weight:650;
-  min-height:36px;
+  list-style:none;cursor:pointer;padding:12px 0 6px;font-size:14px;color:var(--t2);
+  font-weight:650;min-height:40px;
 }
 details.sub>summary:before{content:'▸ '}
 details.sub[open]>summary:before{content:'▾ '}
@@ -249,59 +200,57 @@ details.sub[open]>summary:before{content:'▾ '}
 #evoailist{max-height:40vh;overflow-y:auto}
 #cvmainsvg svg,#cvevosvg svg{max-height:300px}
 #snwave,#sbwave{
-  background:var(--card2);
-  border:1px solid var(--line);
-  border-radius:12px;
-  padding:8px 10px;
-  line-height:1.45;
+  background:var(--card2);border:1px solid var(--line);border-radius:12px;
+  padding:10px 12px;line-height:1.45;margin:0 0 10px;
 }
-#snwave.wave-on,#sbwave.wave-on{
-  background:var(--rdim);
-  border-color:rgba(255,93,93,.45);
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-variant-numeric:tabular-nums;
-  font-size:13px;
-}
+#snwave.wave-on,#sbwave.wave-on{background:var(--rdim);border-color:rgba(255,93,93,.45)}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:13px}
 th,td{padding:8px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
-th{color:var(--t2);font-weight:650;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+th{color:var(--t2);font-weight:650;font-size:11px}
 .tbl-wrap,#list,#sntrades,#sbtrades,#cptrades,#cpwallets,#events,.scroll{
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-}
-@media (min-width:430px){
-  .kpis{grid-template-columns:repeat(4,1fr)}
-  .bots{display:flex;flex-wrap:wrap;gap:6px}
-  .bot{flex:1 1 0}
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
 }
 @media (min-width:900px){
-  .wrap{max-width:1180px;padding:0 20px 40px}
+  .wrap{max-width:640px;padding:0 20px 48px}
   .top{margin:0 -20px 16px;padding-left:20px;padding-right:20px}
-  .cols{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;align-items:start}
-  .bal{font-size:36px}
-  #chart{height:76px}
-  .strip{grid-template-columns:repeat(5,1fr)}
-  .strip-card:last-child{grid-column:auto}
 }
-</style></head><body><div class="wrap">
+</style>
+</head>
+<body><div class="wrap">
 <div class="top"><h1>Memecoin-Sim<span class="sim">SPIELGELD</span></h1><div class="small" id="upd"></div></div>
-<div class="strip" id="strip" role="region" aria-label="Kontostände aller Bots">
-<div class="strip-card" id="st-main"><div class="name">Haupt-Bot</div><div class="amt">–</div><div class="pct"></div></div>
-<div class="strip-card" id="st-evo"><div class="name">Evolution</div><div class="amt">–</div><div class="pct"></div></div>
-<div class="strip-card" id="st-sn"><div class="name">Sniper A</div><div class="amt">–</div><div class="pct"></div></div>
-<div class="strip-card" id="st-sb"><div class="name">Sniper B</div><div class="amt">–</div><div class="pct"></div></div>
-<div class="strip-card" id="st-cp"><div class="name">Copy-Trader</div><div class="amt">–</div><div class="pct"></div></div>
+<div class="card small warn" id="stale" style="display:none"></div>
+<div class="stopban" id="acstop"></div>
+<div class="alerts" id="alerts"></div>
+<div class="overview" id="overview" role="region" aria-label="Übersicht aller Bots">
+  <div class="ov-total" id="ov-total">
+    <div class="ov-name">Gesamt</div>
+    <div class="ov-bal" id="ov-total-bal">–</div>
+    <div class="ov-pct" id="ov-total-pct"></div>
+  </div>
+  <button type="button" class="ov-row" id="ov-main" data-sec="sec-main"></button>
+  <button type="button" class="ov-row" id="ov-evo" data-sec="sec-evo"></button>
+  <button type="button" class="ov-row" id="ov-sn" data-sec="snipercard"></button>
+  <button type="button" class="ov-row" id="ov-sb" data-sec="snipercardb"></button>
+  <button type="button" class="ov-row" id="ov-cp" data-sec="copycard"></button>
 </div>
-<div class="card small warn" id="stale" style="display:none"></div><div class="stopban" id="acstop"></div>
-<div class="cols"><div>
-<div class="card"><div class="hero"><div><div class="lbl">Gesamtguthaben</div><div class="bal" id="bal">–</div></div><div class="r"><div id="pnl" class="up"></div><div class="small" id="kpinet"></div></div></div><svg id="chart" viewBox="0 0 500 120" preserveAspectRatio="none"></svg></div>
-<div class="kpis" id="kpis"><div class="kpi"><div class="lbl">Offen</div><b id="kpos">–</b><div class="small" id="kposv"></div></div><div class="kpi"><div class="lbl">Trades</div><b id="ktr">–</b><div class="small" id="ktrv"></div></div><div class="kpi"><div class="lbl">Konto-Stop</div><b id="kstop">–</b><div class="small" id="kstopv"></div></div><div class="kpi"><div class="lbl">🧬 Evolution</div><b id="kevo">–</b><div class="small" id="kevov"></div></div></div>
-<div class="bots" id="bots"></div>
+<p class="hint">Tippe auf eine Zeile für die Details.</p>
+
+<details class="sec" data-k="bot-main" id="sec-main">
+<summary>Haupt-Bot <span class="small" id="summain"></span></summary>
+<div class="in">
+<div class="card"><div class="hero"><div><div class="lbl">Guthaben</div><div class="bal" id="bal">–</div></div><div class="r"><div id="pnl" class="up"></div><div class="small" id="kpinet"></div></div></div><svg id="chart" viewBox="0 0 500 120" preserveAspectRatio="none"></svg></div>
+<div class="kpis" id="kpis"><div class="kpi"><div class="lbl">Offen</div><b id="kpos">–</b><div class="small" id="kposv"></div></div><div class="kpi"><div class="lbl">Trades</div><b id="ktr">–</b><div class="small" id="ktrv"></div></div><div class="kpi"><div class="lbl">Konto-Stop</div><b id="kstop">–</b><div class="small" id="kstopv"></div></div><div class="kpi" id="kpi-evo-wrap" style="display:none"><div class="lbl">Evolution</div><b id="kevo">–</b><div class="small" id="kevov"></div></div></div>
 <div class="tabs"><div class="tab on" data-t="pos">Positionen</div><div class="tab" data-t="watch">Watchlist</div><div class="tab" data-t="trades">Trades</div><div class="tab" data-t="bots">Bots</div></div>
 <div class="card" id="list"></div>
-<details class="sec" data-k="sniper" id="snipercard" open style="display:none"><summary>🎯 Sniper A (B + Filter: Liq ≥ $20k, Top10 < 20%) – Spielgeld <span class="small" id="sumsn"></span></summary><div class="in">
+<details class="sub" data-k="agents"><summary>Agenten</summary><div class="bots" id="bots"></div></details>
+<details class="sub" data-k="ziel"><summary>Ziel &amp; Regeln <span class="small" id="sumziel"></span></summary><div class="in"><div class="row"><div><div class="lbl">Nacht-Ziel <span id="mult"></span></div><b id="goal" style="font-size:13px"></b></div><span class="small">Nur Ansicht</span></div><div class="bar"><i id="prog"></i></div><div class="small" id="acline" style="margin-top:6px"></div><div class="small" id="rules" style="margin-top:6px;line-height:1.5"></div><div class="small" id="xline" style="margin-top:6px"></div><div class="small" id="scoutnote" style="margin-top:6px"></div></div></details>
+<details class="sub" data-k="cvmain"><summary>Kontoverlauf</summary><div class="in"><div class="card" id="cvmain" style="display:none"><div id="cvmainhead"></div><div id="cvmainread" style="min-height:20px;margin:2px 0;font-size:12.5px;color:var(--t2)"></div><div id="cvmainsvg"></div><div class="small" id="cvmainnote"></div></div></div></details>
+<details class="sub" data-k="events"><summary>Meldungen <span class="small" id="sumev"></span></summary><div class="in scroll"><div id="events"></div></div></details>
+<details class="sub" id="livecard" data-k="live"><summary>Live-Charts <span class="small">offene Coins</span></summary><div class="in"><div class="small">Echte Live-Kurse aller Coins, die gerade offen gehalten werden (Haupt-Bot + Evolution).</div><div id="livecharts" style="margin-top:4px"></div></div></details>
+</div>
+</details>
+
+<details class="sec" data-k="bot-sn" id="snipercard" style="display:none"><summary>Sniper A <span class="small" id="sumsn"></span></summary><div class="in">
 <div class="stopban" id="snban"></div><div class="small" id="snwave" style="display:none;margin:0 0 6px"></div><div class="small warn card" id="snstale" style="display:none;margin:0 0 6px"></div>
 <div class="row"><div><div class="lbl">Guthaben (netto) · Start <span id="snstart"></span></div><div style="font-size:26px;font-weight:750;line-height:1.15" id="snbal">–</div></div><div class="r"><div id="snpnl" style="font-weight:600"></div><div class="small" id="snpnl2"></div></div></div>
 <div class="bar"><i id="snbar" style="width:0"></i></div><div class="small" id="snbarnote" style="margin-top:3px"></div>
@@ -311,7 +260,8 @@ th{color:var(--t2);font-weight:650;font-size:11px;text-transform:uppercase;lette
 <details class="sub" data-k="snrej"><summary>Aussortiert nach Grund</summary><div id="snrej"></div></details>
 <details class="sub" data-k="snrules"><summary>Regeln des Snipers</summary><div class="small" id="snrules" style="line-height:1.5"></div></details>
 <div class="small" style="margin-top:6px">Sniper A zum Vergleich: gleiche Basisregeln wie Sniper B (inkl. Pump.fun-Ausnahme), zusätzlich Liquidität mindestens $20k und Top-10-Holder unter 20 %. Seit 24.11. bei beiden Snipern: mindestens 300 Käufe in der letzten Stunde und Kaufpause nach Stop-Serie. Eigenes Konto, nur Spielgeld. Kauft brandneue Pools (1–30 Min alt) nach Rug-Check, mit absichtlich schlechten Preisen (Slippage) – Rugs sind hier normal.</div></div></details>
-<details class="sec" data-k="sniperb" id="snipercardb" open style="display:none"><summary>🎯 Sniper B (mit Pump.fun) – Spielgeld <span class="small" id="sumsb"></span></summary><div class="in">
+
+<details class="sec" data-k="bot-sb" id="snipercardb" style="display:none"><summary>Sniper B <span class="small" id="sumsb"></span></summary><div class="in">
 <div class="stopban" id="sbban"></div><div class="small" id="sbwave" style="display:none;margin:0 0 6px"></div><div class="small warn card" id="sbstale" style="display:none;margin:0 0 6px"></div>
 <div class="row"><div><div class="lbl">Guthaben (netto) · Start <span id="sbstart"></span></div><div style="font-size:26px;font-weight:750;line-height:1.15" id="sbbal">–</div></div><div class="r"><div id="sbpnl" style="font-weight:600"></div><div class="small" id="sbpnl2"></div></div></div>
 <div class="bar"><i id="sbbar" style="width:0"></i></div><div class="small" id="sbbarnote" style="margin-top:3px"></div>
@@ -321,7 +271,8 @@ th{color:var(--t2);font-weight:650;font-size:11px;text-transform:uppercase;lette
 <details class="sub" data-k="sbrej"><summary>Aussortiert nach Grund</summary><div id="sbrej"></div></details>
 <details class="sub" data-k="sbrules"><summary>Regeln von Sniper B</summary><div class="small" id="sbrules" style="line-height:1.5"></div></details>
 <div class="small" style="margin-top:6px">Sniper B zum Vergleich: Basisregeln (inkl. Pump.fun-Ausnahme, ohne die engeren Filter von A); seit 24.11. wie A zusätzlich mindestens 300 Käufe in der letzten Stunde und Kaufpause nach Stop-Serie. Eigenes Konto, nur Spielgeld. Kauft brandneue Pools (1–30 Min alt) nach Rug-Check, mit absichtlich schlechten Preisen (Slippage) – Rugs sind hier normal.</div></div></details>
-<details class="sec" data-k="copytr" id="copycard" open style="display:none"><summary>👥 Copy-Trader (Spielgeld) <span class="small" id="sumcp"></span></summary><div class="in">
+
+<details class="sec" data-k="bot-cp" id="copycard" style="display:none"><summary>Copy-Trader <span class="small" id="sumcp"></span></summary><div class="in">
 <div class="stopban" id="cpban"></div><div class="small warn card" id="cpstale" style="display:none;margin:0 0 6px"></div>
 <div class="row"><div><div class="lbl">Guthaben (netto) · Start <span id="cpstart"></span></div><div style="font-size:26px;font-weight:750;line-height:1.15" id="cpbal">–</div></div><div class="r"><div id="cppnl" style="font-weight:600"></div><div class="small" id="cppnl2"></div></div></div>
 <div class="bar"><i id="cpbar" style="width:0"></i></div><div class="small" id="cpbarnote" style="margin-top:3px"></div>
@@ -332,22 +283,17 @@ th{color:var(--t2);font-weight:650;font-size:11px;text-transform:uppercase;lette
 <details class="sub" data-k="cprej"><summary>Aussortierte Signale</summary><div id="cprej"></div></details>
 <details class="sub" data-k="cprules"><summary>Regeln des Copy-Traders</summary><div class="small" id="cprules" style="line-height:1.5"></div></details>
 <div class="small" style="margin-top:6px">Eigener Bot mit eigenem Konto, nur Spielgeld. Beobachtet öffentliche Solana-Wallets (nur Lesen von On-Chain-Daten) und macht deren Käufe/Verkäufe mit Verzögerung und schlechteren Preisen nach. Die Wallets wurden automatisch gefunden (kein Gewinnversprechen) – wer verliert, wird pausiert.</div></div></details>
-<details class="sec" data-k="ziel"><summary>🎯 Ziel, Konto-Stop &amp; Regeln <span class="small" id="sumziel"></span></summary><div class="in"><div class="row"><div><div class="lbl">Nacht-Ziel <span id="mult"></span></div><b id="goal" style="font-size:13px"></b></div><span class="small">Nur Ansicht</span></div><div class="bar"><i id="prog"></i></div><div class="small" id="acline" style="margin-top:6px"></div><div class="small" id="rules" style="margin-top:6px;line-height:1.5"></div><div class="small" id="xline" style="margin-top:6px"></div><div class="small" id="scoutnote" style="margin-top:6px"></div></div></details>
-<details class="sec" data-k="cvmain" open><summary>📈 Kontoverlauf Haupt-Bot</summary><div class="in"><div class="card" id="cvmain" style="display:none"><div id="cvmainhead"></div><div id="cvmainread" style="min-height:20px;margin:2px 0;font-size:12.5px;color:var(--t2)"></div><div id="cvmainsvg"></div><div class="small" id="cvmainnote"></div></div></div></details>
-<details class="sec" data-k="events"><summary>🔔 Meldungen <span class="small" id="sumev"></span></summary><div class="in scroll"><div id="events"></div></div></details>
-<details class="sec" id="livecard" data-k="live"><summary>📈 Live-Charts (DexScreener) <span class="small">offene Coins</span></summary><div class="in"><div class="small">Echte Live-Kurse aller Coins, die gerade offen gehalten werden (Haupt-Bot + Evolution).</div><div id="livecharts" style="margin-top:4px"></div></div></details>
-</div><div>
-<details class="sec" data-k="evo" open><summary>🧬 Evolution · <span id="evotitle">Bot-Population</span> <span class="small" id="evoupd"></span></summary><div class="in"><div class="card" id="evocard" style="display:none"><div id="evosum"></div><div class="small" id="evobest" style="margin-top:4px"></div>
+
+<details class="sec" data-k="bot-evo" id="sec-evo"><summary>Evolution <span class="small" id="sumevo"></span></summary><div class="in"><div class="card" id="evocard" style="display:none"><div id="evosum"></div><div class="small" id="evobest" style="margin-top:4px"></div>
 <div id="labnow" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)"><div class="lbl">Gerade gekauft / offen im Labor</div><div id="labopen"></div><div class="lbl" style="margin-top:10px">Letzte Labor-Käufe</div><div id="labbuys"></div></div>
 <div id="lab" style="display:none;margin-top:6px"><div class="small" id="labhead"></div><div class="scroll" id="labrows" style="margin-top:4px"></div><div class="small" id="labki" style="margin-top:6px"></div><div class="small" id="labnote" style="margin-top:6px"></div></div>
 <details class="sub" data-k="evobots"><summary>Alle Bots &amp; ihre Regeln</summary><div class="scroll" id="evobots"></div></details><details class="sub" id="evoai" style="display:none"><summary>🤖 KI-Entscheidungen (KI-Prüfer)</summary><div id="evoailist"></div><div class="small" id="evoainote" style="margin-top:4px"></div></details>
 <details class="sub" data-k="evoev"><summary>Geburten &amp; Todesfälle</summary><div id="evoev"></div></details>
-<details class="sub" data-k="evorules"><summary>Spielregeln der Evolution</summary><div class="small" id="evorules"></div></details></div></div></details>
-<details class="sec" data-k="cvevo"><summary>📊 Kontoverlauf aller Evo-Bots</summary><div class="in"><div class="card" id="cvevo" style="display:none"><div id="cvevohead"></div><div id="cvevoread" style="min-height:20px;margin:2px 0;font-size:12.5px;color:var(--t2)"></div><div id="cvevosvg"></div><div id="cvevoleg" style="display:flex;flex-wrap:wrap;gap:3px 8px;margin-top:6px"></div><div class="small" id="cvevonote" style="margin-top:6px"></div></div></div></details>
-<details class="sec" data-k="coins"><summary>🪙 Gekaufte Coins (alle Evo-Bots) <span class="small" id="sumco"></span></summary><div class="in"><div class="card" id="evocoins" style="display:none"><div class="small" id="cohead"></div><div id="cooverview" class="scroll" style="margin-top:4px"></div><div class="lbl" style="margin:10px 0 2px">Trades je Bot <span class="small">(antippen zum Aufklappen)</span></div><div id="cobots"></div><div class="small" id="conote" style="margin-top:6px"></div></div></div></details>
-</div></div>
-<div class="note">Simulation mit Spielgeld auf echten Live-Kursen (DexScreener, GeckoTerminal, RugCheck). Keine echten Trades, kein Wallet. Daten werden etwa jede Minute aktualisiert.</div>
-</div><script>
+<details class="sub" data-k="evorules"><summary>Spielregeln der Evolution</summary><div class="small" id="evorules"></div></details></div><div class="small" style="margin-top:8px"><span id="evotitle"></span> <span id="evoupd"></span></div><details class="sub" data-k="cvevo"><summary>Kontoverlauf</summary><div class="in"><div class="card" id="cvevo" style="display:none"><div id="cvevohead"></div><div id="cvevoread" style="min-height:20px;margin:2px 0;font-size:12.5px;color:var(--t2)"></div><div id="cvevosvg"></div><div id="cvevoleg" style="display:flex;flex-wrap:wrap;gap:3px 8px;margin-top:6px"></div><div class="small" id="cvevonote" style="margin-top:6px"></div></div></div></details><details class="sub" data-k="coins"><summary>Gekaufte Coins <span class="small" id="sumco"></span></summary><div class="in"><div class="card" id="evocoins" style="display:none"><div class="small" id="cohead"></div><div id="cooverview" class="scroll" style="margin-top:4px"></div><div class="lbl" style="margin:10px 0 2px">Trades je Bot <span class="small">(antippen zum Aufklappen)</span></div><div id="cobots"></div><div class="small" id="conote" style="margin-top:6px"></div></div></div></details></div></details>
+
+<div class="note">Simulation mit Spielgeld auf echten Live-Kursen. Keine echten Trades, kein Wallet. Daten werden etwa jede Minute aktualisiert.</div>
+</div>
+<script>
 let S=null,tab='pos';const $=id=>document.getElementById(id);
 const usd=v=>(v<0?'-':'')+'$'+Math.abs(v).toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
 const pct=v=>(v>=0?'+':'')+v.toLocaleString('de-DE',{maximumFractionDigits:2})+'%';
@@ -588,16 +534,51 @@ if($('sumziel'))$('sumziel').textContent=`Ziel ${usd(S.goal||0)} · ${Math.max(0
 const ev=S.events||[];if($('sumev'))$('sumev').textContent=ev.length?'zuletzt '+t(ev[0].t):'';
 const T=E&&E.trades;if($('sumco'))$('sumco').textContent=T&&T.coins?T.coins.length+' Coins':'';}
 document.querySelectorAll('details[data-k]').forEach(d=>{const k='dash_open_'+d.dataset.k;try{const v=localStorage.getItem(k);if(v!=null)d.open=v==='1'}catch(e){}d.addEventListener('toggle',()=>{try{localStorage.setItem(k,d.open?'1':'0')}catch(e){}})});
-function renderStrip(){if(!S)return;
-const cell=(id,name,bal,pct)=>{const el=$(id);if(!el)return;const up=pct==null?null:pct>=0;el.className='strip-card'+(up===true?' up':up===false?' down':'');el.innerHTML=`<div class="name">${name}</div><div class="amt">${bal!=null?usd(bal):'–'}</div><div class="pct">${pct!=null?pctDE(pct):''}</div>`};
-cell('st-main','Haupt-Bot',S.equity??S.cash,S.pnl_pct);
-const E=S.evo;if(E&&E.total_equity!=null){const start=(E.bots||[]).reduce((a,b)=>a+(+b.start_money||0),0)||((E.rules||{}).start_money||0)*(E.alive||0);cell('st-evo','Evolution',E.total_equity,start?((E.total_equity/start)-1)*100:null)}else cell('st-evo','Evolution',null,null);
-const sn=S.sniper;cell('st-sn','Sniper A',sn&&sn.balance,sn&&sn.pnl_pct);
-const sb=S.sniper_b;cell('st-sb','Sniper B',sb&&sb.balance,sb&&sb.pnl_pct);
-const cp=S.copytrader;cell('st-cp','Copy-Trader',cp&&cp.balance,cp&&cp.pnl_pct);
+function lastSym(list){if(!list||!list.length)return '';const x=list.find(t=>t&&t.side&&String(t.side).toUpperCase()!=='BUY')||list[0];return (x&&x.symbol)||'';}
+function winPct(st,trades){if(st&&st.wins!=null&&((st.wins||0)+(st.losses||0))>0)return Math.round(st.wins/(st.wins+st.losses)*100);const cl=(trades||[]).filter(x=>x&&x.side!=='BUY'&&x.pnl_usd!=null);if(!cl.length)return null;return Math.round(cl.filter(x=>x.pnl_usd>0).length/cl.length*100);}
+function figs(n,rate,last){const p=[];if(n!=null)p.push(n+' Trades');if(rate!=null)p.push(rate+' % im Plus');if(last)p.push('zuletzt '+last);return p.join(' · ');}
+function ampelOf(N){if(!N)return {cls:'stop',label:'Keine Daten'};const A=N.account_stop||{};if(A.triggered)return {cls:'stop',label:'Konto-Stop'};if(N.cooldown&&N.cooldown.active)return {cls:'pause',label:'Kaufpause'};if(N.paused)return {cls:'pause',label:'Pausiert'};return {cls:'ok',label:'Läuft'};}
+function ovRow(id,name,sec,bal,pct,openN,amp){const el=$(id);if(!el)return;const up=pct==null?null:pct>=0;const pc=pct==null?'':pctDE(pct);el.innerHTML=`<div class="ov-name"><span class="ampel ${amp.cls}" title="${amp.label}"></span>${name}</div><div class="ov-open">${openN==null?'':(openN+' offen')}</div><div class="ov-bal">${bal!=null?usd(bal):'–'}</div><div class="ov-pct ${up===true?'up':up===false?'down':''}">${pc}</div>`;el.setAttribute('aria-label',`${name} ${amp.label}${bal!=null?', '+usd(bal):''}${pc?', '+pc:''}${openN!=null?', '+openN+' offen':''}`);}
+function evoOpen(E){if(!E)return 0;const T=E.trades||{};if(Array.isArray(T.open))return T.open.length;return (E.bots||[]).reduce((n,b)=>n+((b.open||[]).length),0);}
+function evoLast(E){const T=(E&&E.trades)||{};const rb=T.recent_buys||[];if(rb.length&&rb[0].symbol)return rb[0].symbol;const coins=(T.coins||[]).slice().sort((a,b)=>String(b.last||'').localeCompare(String(a.last||'')));return coins[0]&&coins[0].symbol||'';}
+function evoRate(E){const coins=((E&&E.trades)||{}).coins||[];if(!coins.length)return null;return Math.round(coins.filter(c=>(c.pnl_usd||0)>0).length/coins.length*100);}
+function evoStart(E){if(!E)return 0;return (E.bots||[]).reduce((a,b)=>a+(+b.start_money||0),0)||((E.rules||{}).start_money||0)*(E.alive||0);}
+function evoTrades(E){const st=(((E&&E.trades)||{}).coins||[]).reduce((n,c)=>n+(c.trades||0),0);if(st)return st;return (E.bots||[]).reduce((n,b)=>n+(b.closed_trades||0),0);}
+function jumpSec(id){const el=$(id);if(!el)return;if(el.style.display==='none')el.style.display='block';if(el.tagName==='DETAILS')el.open=true;el.scrollIntoView({behavior:'smooth',block:'start'});}
+function renderAlerts(){const box=$('alerts');if(!box||!S)return;const bits=[];
+const sn=S.sniper,sb=S.sniper_b,cp=S.copytrader;
+function stopMsg(N,name){const A=N&&N.account_stop;if(A&&A.triggered)bits.push(`<div class="alert stop">⛔ ${name}: Konto-Stop${A.message?' – '+esc(A.message):''}</div>`);}
+stopMsg(sn,'Sniper A');stopMsg(sb,'Sniper B');stopMsg(cp,'Copy-Trader');
+function pauseMsg(N,name){if(N&&N.cooldown&&N.cooldown.active){const until=N.cooldown.until?t(N.cooldown.until):'';bits.push(`<div class="alert pause">⏸️ ${name}: Kaufpause${until?' bis '+until:''}<small>Offene Positionen werden weiter verwaltet</small></div>`);}}
+pauseMsg(sn,'Sniper A');pauseMsg(sb,'Sniper B');
+const W=(sn&&sn.rugwave)||(sb&&sb.rugwave);if(W&&W.flag){const pc=W.pct!=null?Math.round(W.pct)+' %':'–';bits.push(`<div class="alert wave">🌊 Rug-Welle: ${W.rugs} von ${W.exits} Ausstiegen in ${W.hours} h = ${pc}<small>Nur Anzeige, ändert keine Regel</small></div>`);}
+box.innerHTML=bits.join('');
 ['snban','sbban','cpban'].forEach(id=>{const b=$(id);if(b)b.classList.toggle('pause',/Kaufpause/.test(b.textContent||''))});
 ['snwave','sbwave'].forEach(id=>{const el=$(id);if(el)el.classList.toggle('wave-on',!!el.querySelector('.down'))});
 }
-{const _render=render;render=function(){_render();try{renderKpi()}catch(e){console.error(e)}try{renderStrip()}catch(e){console.error(e)}}}
+function renderOverview(){if(!S)return;
+const main={equity:S.equity??S.cash,start:S.start_balance,pnl_pct:S.pnl_pct,paused:S.paused,account_stop:S.account_stop};
+const ps=Object.values(S.positions||{});
+ovRow('ov-main','Haupt-Bot','sec-main',main.equity,S.pnl_pct,ps.length,ampelOf(main));
+const E=S.evo,eStart=evoStart(E),eBal=E&&E.total_equity,ePct=(E&&eStart)?((eBal/eStart)-1)*100:null;
+ovRow('ov-evo','Evolution','sec-evo',eBal,ePct,E?evoOpen(E):null,ampelOf(E||null));
+const sn=S.sniper,sb=S.sniper_b,cp=S.copytrader;
+ovRow('ov-sn','Sniper A','snipercard',sn&&sn.balance,sn&&sn.pnl_pct,sn&&(sn.open||[]).length,ampelOf(sn));
+ovRow('ov-sb','Sniper B','snipercardb',sb&&sb.balance,sb&&sb.pnl_pct,sb&&(sb.open||[]).length,ampelOf(sb));
+ovRow('ov-cp','Copy-Trader','copycard',cp&&cp.balance,cp&&cp.pnl_pct,cp&&(cp.open||[]).length,ampelOf(cp));
+const parts=[{b:main.equity,s:S.start_balance},{b:eBal,s:eStart},{b:sn&&sn.balance,s:sn&&sn.start_balance},{b:sb&&sb.balance,s:sb&&sb.start_balance},{b:cp&&cp.balance,s:cp&&cp.start_balance}].filter(x=>x.b!=null&&x.s);
+const totB=parts.reduce((a,x)=>a+x.b,0),totS=parts.reduce((a,x)=>a+x.s,0);
+const totP=totS?((totB/totS)-1)*100:null;
+const tb=$('ov-total-bal'),tp=$('ov-total-pct');if(tb)tb.textContent=usd(totB);if(tp){tp.textContent=totP==null?'':pctDE(totP);tp.className='ov-pct '+(totP==null?'':totP>=0?'up':'down');}
+const st=S.stats||{};
+if($('summain'))$('summain').textContent=figs(st.sold||st.bought,winPct(st,S.trades),lastSym(S.trades));
+if($('sumevo')&&E)$('sumevo').textContent=figs(evoTrades(E)||null,evoRate(E),evoLast(E));
+if(sn&&$('sumsn'))$('sumsn').textContent=figs((sn.stats||{}).sold||(sn.stats||{}).bought,winPct(sn.stats,sn.trades),lastSym(sn.trades));
+if(sb&&$('sumsb'))$('sumsb').textContent=figs((sb.stats||{}).sold||(sb.stats||{}).bought,winPct(sb.stats,sb.trades),lastSym(sb.trades));
+if(cp&&$('sumcp'))$('sumcp').textContent=figs((cp.stats||{}).sold||(cp.stats||{}).bought,winPct(cp.stats,cp.trades),lastSym(cp.trades));
+renderAlerts();
+}
+if(!$('overview')._bound){$('overview')._bound=1;document.querySelectorAll('.ov-row').forEach(el=>el.addEventListener('click',()=>jumpSec(el.dataset.sec)));}
+{const _render=render;render=function(){_render();try{renderKpi()}catch(e){console.error(e)}try{renderOverview()}catch(e){console.error(e)}}}
 load();setInterval(load,30000);setInterval(render,15000);
 </script></body></html>
