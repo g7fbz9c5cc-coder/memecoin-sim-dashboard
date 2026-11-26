@@ -216,6 +216,24 @@ th{color:var(--t2);font-weight:650;font-size:11px}
   .wrap{max-width:640px;padding:0 20px 48px}
   .top{margin:0 -20px 16px;padding-left:20px;padding-right:20px}
 }
+.fn{margin:4px 0 10px;background:var(--card2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px}
+.fn-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.fn-h .lbl{font-weight:600}
+.fn-tg{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;flex:none}
+.fn-tg button{background:none;border:0;color:var(--t2);font:inherit;font-size:12px;padding:4px 10px;min-height:28px}
+.fn-tg button.on{background:var(--line);color:inherit;font-weight:600}
+.fn-row{display:grid;grid-template-columns:86px 1fr 62px;align-items:center;gap:6px;margin:5px 0;font-size:12.5px}
+.fn-row .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fn-row .v{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.fn-bar{height:12px;border-radius:6px;background:rgba(255,255,255,.05);overflow:hidden}
+.fn-bar i{display:block;height:100%;border-radius:6px;min-width:3px}
+.fn-out{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;margin:2px 0 4px 92px}
+.fn-rs{margin-top:8px;border-top:1px solid var(--line);padding-top:6px}
+.fn-rs .it{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:2px 0}
+.fn-rs .it span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fn-rs .it span:last-child{font-variant-numeric:tabular-nums;flex:none}
+.fn-rc{margin-top:8px;font-size:12px;border-top:1px solid var(--line);padding-top:6px}
+.fn .small{font-size:11px}
 </style>
 </head>
 <body><div class="wrap">
@@ -257,6 +275,7 @@ th{color:var(--t2);font-weight:650;font-size:11px}
 <div class="row"><div><div class="lbl">Guthaben (netto) · Start <span id="snstart"></span></div><div style="font-size:26px;font-weight:750;line-height:1.15" id="snbal">–</div></div><div class="r"><div id="snpnl" style="font-weight:600"></div><div class="small" id="snpnl2"></div></div></div>
 <div class="bar"><i id="snbar" style="width:0"></i></div><div class="small" id="snbarnote" style="margin-top:3px"></div>
 <div class="kpis" style="margin:8px 0"><div class="kpi"><div class="lbl">Offen</div><b id="snk1">–</b><div class="small" id="snk1v"></div></div><div class="kpi"><div class="lbl">Trades</div><b id="snk2">–</b><div class="small" id="snk2v"></div></div><div class="kpi"><div class="lbl">☠️ Rugs</div><b id="snk3">–</b><div class="small" id="snk3v"></div></div><div class="kpi"><div class="lbl">Geprüft</div><b id="snk4">–</b><div class="small" id="snk4v"></div></div></div>
+<div class="fn" id="snfunnel" style="display:none"></div>
 <div class="lbl">Offene Positionen</div><div id="snopen"></div>
 <div class="lbl" style="margin-top:10px">Letzte Trades</div><div id="sntrades" class="scroll" style="max-height:40vh"></div>
 <details class="sub" data-k="snrej"><summary>Aussortiert nach Grund</summary><div id="snrej"></div></details>
@@ -268,6 +287,7 @@ th{color:var(--t2);font-weight:650;font-size:11px}
 <div class="row"><div><div class="lbl">Guthaben (netto) · Start <span id="sbstart"></span></div><div style="font-size:26px;font-weight:750;line-height:1.15" id="sbbal">–</div></div><div class="r"><div id="sbpnl" style="font-weight:600"></div><div class="small" id="sbpnl2"></div></div></div>
 <div class="bar"><i id="sbbar" style="width:0"></i></div><div class="small" id="sbbarnote" style="margin-top:3px"></div>
 <div class="kpis" style="margin:8px 0"><div class="kpi"><div class="lbl">Offen</div><b id="sbk1">–</b><div class="small" id="sbk1v"></div></div><div class="kpi"><div class="lbl">Trades</div><b id="sbk2">–</b><div class="small" id="sbk2v"></div></div><div class="kpi"><div class="lbl">☠️ Rugs</div><b id="sbk3">–</b><div class="small" id="sbk3v"></div></div><div class="kpi"><div class="lbl">Geprüft</div><b id="sbk4">–</b><div class="small" id="sbk4v"></div></div></div>
+<div class="fn" id="sbfunnel" style="display:none"></div>
 <div class="lbl">Offene Positionen</div><div id="sbopen"></div>
 <div class="lbl" style="margin-top:10px">Letzte Trades</div><div id="sbtrades" class="scroll" style="max-height:40vh"></div>
 <details class="sub" data-k="sbrej"><summary>Aussortiert nach Grund</summary><div id="sbrej"></div></details>
@@ -583,5 +603,30 @@ renderAlerts();
 }
 if(!$('overview')._bound){$('overview')._bound=1;document.querySelectorAll('.ov-row').forEach(el=>el.addEventListener('click',()=>jumpSec(el.dataset.sec)));}
 {const _render=render;render=function(){_render();try{renderKpi()}catch(e){console.error(e)}try{renderOverview()}catch(e){console.error(e)}}}
+/* Trichter (nur Anzeige) */
+const FNW={snfunnel:'w24',sbfunnel:'w24'};
+const nDE=n=>(n==null?'–':Number(n).toLocaleString('de-DE'));
+function fnRow(nm,v,max,col,title){const w=v>0&&max>0?Math.max(2,Math.log10(v+1)/Math.log10(max+1)*100):0;return `<div class="fn-row" title="${esc(title||'')}"><div class="nm">${nm}</div><div class="fn-bar"><i style="width:${w.toFixed(1)}%;background:${col}"></i></div><div class="v">${nDE(v)}</div></div>`}
+function renderFunnel(id,F){const el=$(id);if(!el)return;if(!F||!F.w24){el.style.display='none';return}el.style.display='block';
+const k=FNW[id]||'w24',W=F[k]||{},seen=W.seen||0,passed=W.passed||0,rsum=W.rejected||0;
+const wat=Math.max(0,Math.min(F.watching||0,seen-passed-rsum)),rej=Math.max(rsum,seen-passed-wat),gap=Math.max(0,rej-rsum),tDf=x=>tD(x).replace('..','.');
+const O=W.outcomes||{},oc=[['Plus','var(--g)','✅'],['Minus','var(--a)','➖'],['Stop-Loss','var(--r)','🛑'],['Rug','var(--r)','☠️'],['Rug-Wächter','var(--a)','🐕']];
+const sold=Object.values(O).reduce((a,b)=>a+b,0),max=Math.max(seen,1);
+const tg=`<div class="fn-tg" role="group" aria-label="Zeitraum"><button type="button" data-fn="${id}" data-w="w24" class="${k==='w24'?'on':''}">24 h</button><button type="button" data-fn="${id}" data-w="reset" class="${k==='reset'?'on':''}">seit Reset</button></div>`;
+let h=`<div class="fn-h"><div><div class="lbl">🔎 Trichter</div><div class="small">${k==='w24'?(W.complete?'letzte 24 h':'seit '+tDf(W.from)+' (24 h füllen sich noch)'):'seit Reset '+tDf(W.from)}</div></div>${tg}</div>`;
+h+=fnRow('Gesehen',seen,max,'#7aa2ff','Coins, die die eigentliche Prüfung erreicht haben (Alter passt, DexScreener-Daten vorhanden)');
+h+=fnRow('Aussortiert',rej,max,'var(--r)','an einem Filter gescheitert');
+h+=fnRow('Bestanden',passed,max,'var(--a)','alle Filter bestanden → Kaufsignal');
+h+=fnRow('Gekauft',W.bought||0,max,'var(--g)','tatsächlich gekauft (Fill im nächsten Zyklus)');
+h+=fnRow('Ergebnis',sold,max,'#c084fc','davon schon verkauft');
+h+=`<div class="fn-out">${oc.filter(o=>O[o[0]]).map(o=>`<span>${o[2]} ${o[0]} <b>${nDE(O[o[0]])}</b></span>`).join('')||'<span class="small">noch kein Verkauf</span>'}${F.open?`<span>● offen <b>${F.open}</b></span>`:''}${W.aborted?`<span class="small">⏹ vor Kauf abgebrochen ${nDE(W.aborted)}</span>`:''}</div>`;
+const R=(W.rej_top||[]).slice(0,5);
+if(R.length){h+=`<div class="fn-rs"><div class="small" style="margin-bottom:2px">Häufigste Gründe fürs Aussortieren</div>${R.map(r=>`<div class="it"><span>${esc(r[0].replace('(Nh)','(1h)'))}</span><span>${nDE(r[1])}</span></div>`).join('')}${W.rej_other?`<div class="it"><span class="small">andere Gründe</span><span class="small">${nDE(W.rej_other)}</span></div>`:''}${gap?`<div class="it"><span class="small">ohne Endgrund (Neustart/Überlauf)</span><span class="small">${nDE(gap)}</span></div>`:''}</div>`}
+const rc=W.rc||{};
+h+=`<div class="fn-rc">🛡️ <b>Rugs vermieden (Stichprobe):</b> ${rc.checked?`${nDE(rc.rugged)} von ${nDE(rc.checked)} nachgeprüften Aussortierten waren 1 h später gerugged (${Math.round(rc.rugged/rc.checked*100)} %)`:'noch keine Nachprüfung – erste Werte ca. 1 h nach Start'}${k==='reset'&&rc.since?` · gemessen erst seit ${tDf(rc.since)}`:''}<div class="small">Nachgeprüft werden nur Coins, die kaufbar gewesen wären (nicht „Liquidität zu niedrig“ / exotische Quote). Gerugged = Paar weg, Liquidität &lt; 20 % oder Kurs &lt; 10 %. ${F.rc_queue?nDE(F.rc_queue)+' warten auf Nachprüfung. ':''}Balken logarithmisch · ${nDE(F.watching)} gerade beobachtet (noch ohne Urteil) · nur Anzeige, ändert keine Regel.</div></div>`;
+el.innerHTML=h;}
+function renderFunnels(){if(!S)return;renderFunnel('snfunnel',S.sniper&&S.sniper.funnel);renderFunnel('sbfunnel',S.sniper_b&&S.sniper_b.funnel)}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-fn]');if(!b)return;e.preventDefault();e.stopPropagation();FNW[b.dataset.fn]=b.dataset.w;renderFunnels()});
+{const _r2=render;render=function(){_r2();try{renderFunnels()}catch(e){console.error(e)}}}
 load();setInterval(load,30000);setInterval(render,15000);
 </script></body></html>
